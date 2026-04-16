@@ -1,0 +1,103 @@
+---
+name: issue-brainstorm
+description: >-
+  需求头脑风暴：将用户的一个想法或需求，通过调研和结构化讨论，整理成
+  可用于创建 GitHub Issue 的 design spec。支持 manual 和 auto 两种模式。
+argument-hint: "<需求描述>"
+disable-model-invocation: false
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - AskUserQuestion
+  - Bash(cat *)
+  - Skill(superpowers:brainstorming)
+---
+
+# Issue Brainstorm
+
+将需求描述转化为结构化的 design spec，用于后续创建 GitHub Issue：`$ARGUMENTS`
+
+## 执行步骤
+
+### 1. 检测运行模式
+
+检查 `.issue-flow/mode`：
+- 如果存在且内容为 `auto` → **auto 模式**
+- 否则 → **manual 模式**（默认）
+
+### 2. 需求澄清
+
+- 如果 `$ARGUMENTS` 足够清晰 → 继续下一步
+- 如果需求过于模糊 → 向用户提问以明确目标、约束和验收标准
+
+### 3. 设计评审
+
+调用 `superpowers:brainstorming` 进行设计评审。
+
+输入：需求描述 + 任何补充上下文。
+输出：一份结构化的 design spec，至少包含：
+- 目标（一句话说明交付结果）
+- 背景（为什么做）
+- 验收标准（可验证条件列表）
+- 范围（包含 / 不包含）
+- 技术约束（如有）
+- 风险与依赖（如有）
+
+### 4. 模式处理
+
+#### Manual 模式
+
+向用户展示 design spec，等待确认或修正。
+
+使用 AskUserQuestion 展示：
+- 目标
+- 背景
+- 验收标准
+- 范围
+- 技术约束
+- 风险与依赖
+
+用户确认后，输出最终的 design spec。
+
+#### Auto 模式
+
+直接输出 design spec，不做额外确认。
+
+### 5. 输出
+
+输出格式：
+
+```markdown
+## Design Spec
+
+### 目标
+{目标}
+
+### 背景
+{背景}
+
+### 验收标准
+- [ ] {标准 1}
+- [ ] {标准 2}
+
+### 范围
+**包含：**
+- {范围 1}
+
+**不包含：**
+- {范围外 1}
+
+### 技术约束
+{约束}
+
+### 风险与依赖
+{风险与依赖}
+```
+
+## 规则
+
+- 不编造内容，严格从用户输入和对话上下文中推导
+- 验收标准必须可验证
+- 范围必须明确，避免无限蔓延
+- 如果用户在设计评审过程中提出重大修改，更新 design spec 后重新展示

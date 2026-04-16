@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# state-transition-guard.sh
+# PreToolUse hook for Claude Code that validates issue-flow skill state transitions.
+#
+# Receives JSON on stdin from Claude Code hooks.
+# - Reads the skill name from tool_input
+# - Checks .issue-flow/state for current state
+# - Blocks illegal transitions (exit 2 with JSON error)
+# - Passes legal transitions (exit 0, no output)
+
+set -euo pipefail
+
+# --- Read stdin JSON ---
+INPUT=$(cat)
+
+# Extract skill name from tool_input.name (jq)
+SKILL_NAME=$(echo "$INPUT" | jq -r '.tool_input.name // empty' 2>/dev/null)
+
+# If not an issue-* skill, pass through
+if [[ -z "$SKILL_NAME" ]] || [[ "$SKILL_NAME" != issue-* ]]; then
+  exit 0
+fi
+
+# --- Find .issue-flow/state by walking up from CWD ---
+find_state_file() {
+  local dir="$PWD"
+  while [[ "$dir" != "/" ]]; do
+    if [[ -f "$dir/.issue-flow/state" ]]; then
+      echo "$dir/.issue-flow/state"
+      return 0
+    fi
+    dir=$(dirname "$dir")
+  done
+  return 1
+}
+
+STATE_FILE=""
+CURRENT_STATE="none"
+
+if find_state_file > /dev/null 2>&1; then
+  STATE_FILE=$(find_state_file)
+  STATE_VALUE=$(cat "$STATE_FILE" 2>/dev/null | tr -d '[:space:]')
+  if [[ -n "$STATE_VALUE" ]]; then
+    CURRENT_STATE="$STATE_VALUE"
+  else
+    CURRENT_STATE="none"
+  fi
+else
+  CURRENT_STATE="none"
+  # No state file exists; only certain skills are allowed
+  # Special case: issue-finish should be allowed even without state file
+  # (state may have been deleted during cleanup)
+  if [[ "$SKILL_NAME" == "issue-finish" ]]; then
+    exit 0
+  fi
+fi
+
+# --- Define legal transitions: skill -> required current states ---
+# Each skill maps to an array of states from which it can be called.
+declare -A TRANSITIONS
+
+# issue-brainstorm: only from no state / none
+TRANSITIONS[issue-brainstorm]="none"
+
+# issue-create: from brainstorm or none (standalone use)
+TRANSITIONS[issue-create]="brainstorm none"
+
+# issue-pick: from brainstorm (after brainstorm) or none (standalone Mode B)
+TRANSITIONS[issue-pick]="brainstorm none"
+
+# issue-plan: from picked
+TRANSITIONS[issue-plan]="picked"
+
+# issue-implement: from planned OR verifying (retry from verify failure)
+TRANSITIONS[issue-implement]="planned verifying"
+
+# issue-verify: from implementing
+TRANSITIONS[issue-verify]="implementing"
+
+# issue-commit: from committing
+TRANSITIONS[issue-commit]="committing"
+
+# issue-pr: from pring
+TRANSITIONS[issue-pr]="pring"
+
+# issue-finish: from finished
+TRANSITIONS[issue-finish]="finished"
+
+# --- Validate transition ---
+ALLOWED_STATES="${TRANSITIONS[$SKILL_NAME]:-}"
+
+if [[ -z "$ALLOWED_STATES" ]]; then
+  # Unknown issue-* skill — allow it (don't block unlisted skills)
+  exit 0
+fi
+
+# Check if current state is in the allowed list
+IS_LEGAL=false
+for state in $ALLOWED_STATES; do
+  if [[ "$CURRENT_STATE" == "$state" ]]; then
+    IS_LEGAL=true
+    break
+  fi
+done
+
+if [[ "$IS_LEGAL" == true ]]; then
+  # Legal transition — allow
+  exit 0
+else
+  # Illegal transition — block
+  # Format allowed states as a human-readable list
+  FORMATTED_ALLOWED=$(echo "$ALLOWED_STATES" | sed 's/ / or /g')
+  cat <<EOF
+{"decision": "block", "reason": "Invalid state transition: cannot call ${SKILL_NAME} from state '${CURRENT_STATE}'. Current state must be ${FORMATTED_ALLOWED}."}
+EOF
+  exit 2
+fi
