@@ -65,6 +65,27 @@ done
 echo ""
 echo "=== Content Constraint Tests ==="
 
+echo -n "  codex plugin manifest exposes bundled skills ... "
+if [ -f "$REPO_ROOT/.codex-plugin/plugin.json" ] \
+  && grep -q '"skills": "./skills/"' "$REPO_ROOT/.codex-plugin/plugin.json"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  codex repo marketplace exposes issue-flow plugin ... "
+if [ -f "$REPO_ROOT/.agents/plugins/marketplace.json" ] \
+  && grep -q '"name": "issue-flow"' "$REPO_ROOT/.agents/plugins/marketplace.json" \
+  && grep -q '"path": "./"' "$REPO_ROOT/.agents/plugins/marketplace.json"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
 echo -n "  issue-create: default label + assignee + Chinese ... "
 if grep -q -- '--label' "$SKILLS_DIR/issue-create/SKILL.md" \
   && grep -q -- '--assignee "@me"' "$SKILLS_DIR/issue-create/SKILL.md" \
@@ -90,6 +111,59 @@ fi
 echo -n "  issue-commit: commit message stays English ... "
 if grep -q 'commit message 使用英文' "$SKILLS_DIR/issue-commit/SKILL.md" \
   && grep -q '不要改成中文' "$SKILLS_DIR/issue-commit/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  issue-flow: declares required superpowers runtime skills ... "
+if grep -q 'brainstorming' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'writing-plans' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'using-git-worktrees' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'subagent-driven-development' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'executing-plans' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'finishing-a-development-branch' "$SKILLS_DIR/issue-flow/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  issue-flow: install guidance covers Claude and Codex ... "
+if grep -q '/plugin install superpowers@claude-plugins-official' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '/plugin marketplace add crazygit/issue-flow' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '/plugin install issue-flow@issue-flow-marketplace' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '通过 Codex 插件目录安装 `superpowers` 插件' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '~/.codex/plugins/superpowers' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '\.agents/plugins/marketplace.json' "$SKILLS_DIR/issue-flow/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  codex install docs prefer plugin marketplace flow ... "
+if grep -q '\.codex-plugin/plugin.json' "$REPO_ROOT/.codex/INSTALL.md" \
+  && grep -q '\.agents/plugins/marketplace.json' "$REPO_ROOT/.codex/INSTALL.md" \
+  && ! grep -q '~/.agents/skills/' "$REPO_ROOT/.codex/INSTALL.md" \
+  && ! grep -q 'ln -s ' "$REPO_ROOT/.codex/INSTALL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  session-start reminder uses Codex plugin install path ... "
+if grep -q '/plugin install superpowers@claude-plugins-official' "$REPO_ROOT/hooks/session-start" \
+  && grep -q '~/.codex/plugins/superpowers' "$REPO_ROOT/hooks/session-start" \
+  && grep -q '\.agents/plugins/marketplace.json' "$REPO_ROOT/hooks/session-start" \
+  && ! grep -q '~/.agents/skills/' "$REPO_ROOT/hooks/session-start" \
+  && ! grep -q 'ln -s ' "$REPO_ROOT/hooks/session-start"; then
   echo "ok"
   PASS=$((PASS + 1))
 else

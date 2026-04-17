@@ -1,72 +1,91 @@
 # Codex Installation
 
-## Prerequisites
+Issue-Flow for Codex is packaged as a plugin bundle. The supported install path is the Codex plugin directory plus marketplace-backed local plugin entries, not direct `skills/` symlinks.
 
-- Codex CLI installed
-- `gh` (GitHub CLI) installed and authenticated
-- `git` installed
+## Requirements
 
-## Step 1: Install superpowers
+- Codex CLI
+- `git`
+- `gh` authenticated against GitHub
+- [superpowers](https://github.com/obra/superpowers)
+- A Codex plugin directory that reads plugin entries from `~/.agents/plugins/marketplace.json`
 
-```bash
-git clone https://github.com/obra/superpowers ~/.codex/superpowers
-ln -s ~/.codex/superpowers/skills ~/.agents/skills/superpowers
-```
+The repository includes [`.codex-plugin/plugin.json`](../.codex-plugin/plugin.json) for the plugin bundle and [`.agents/plugins/marketplace.json`](../.agents/plugins/marketplace.json) for a repo-scoped marketplace entry that exposes `issue-flow`.
 
-## Step 2: Install issue-flow
+## Install `superpowers`
 
-```bash
-git clone https://github.com/crazygit/issue-flow ~/.codex/issue-flow
-ln -s ~/.codex/issue-flow/skills ~/.agents/skills/issue-flow
-```
-
-## How it works in Codex
-
-Codex discovers skills via the `~/.agents/skills/` symlink. When you type `issue-flow`, Codex reads `skills/issue-flow/SKILL.md` and follows the state machine.
-
-Note: `AGENTS.md` at the repo root is a symlink to `CLAUDE.md` (contributor guidelines). This is intentional — runtime instructions come from the skill files, not AGENTS.md.
-
-## Important limitations
-
-Codex does not support these Claude Code features:
-
-| Feature | Impact | Workaround |
-|---------|--------|------------|
-| `Agent` tool | No subagent dispatch | `issue-implement` falls back to sequential execution |
-| `Skill` tool | No skill chaining | Skills invoked directly by name |
-| `AskUserQuestion` | No user prompts | Auto-mode behavior used by default |
-| Hooks | No state enforcement | State transitions enforced by skill instructions only |
-| `--web` flag | No browser | `issue-create` and `issue-pr` create directly |
-
-## Usage
-
-```
-issue-flow Add user authentication       # Manual mode
-issue-flow --auto Add user auth          # Auto mode
-issue-flow #42                           # From existing issue
-issue-flow                               # Resume session
-```
-
-## Verification
+Clone the `superpowers` plugin bundle into the Codex plugin directory:
 
 ```bash
-ls -la ~/.agents/skills/issue-flow
+git clone https://github.com/obra/superpowers ~/.codex/plugins/superpowers
 ```
 
-You should see a symlink pointing to your issue-flow skills directory.
+Add or update `~/.agents/plugins/marketplace.json` so it exposes the local `superpowers` plugin:
+
+```json
+{
+  "name": "local-plugins",
+  "interface": {
+    "displayName": "Local Plugins"
+  },
+  "plugins": [
+    {
+      "name": "superpowers",
+      "source": {
+        "source": "local",
+        "path": "./.codex/plugins/superpowers"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
+```
+
+Restart Codex, open the plugin directory, choose `Local Plugins`, and install `superpowers`.
+
+## Install `issue-flow`
+
+This repository already contains a repo-scoped marketplace at [`.agents/plugins/marketplace.json`](../.agents/plugins/marketplace.json). It exposes `issue-flow` as a local plugin whose `source.path` points at the repository root.
+
+Open this repository in Codex, restart if needed, choose `Issue-Flow Local Plugins` in the plugin directory, and install `issue-flow`.
+
+## Verify The Install
+
+Confirm both `superpowers` and `issue-flow` are enabled in the plugin directory. Then start a workflow:
+
+```bash
+issue-flow Add user authentication
+issue-flow --auto Add user authentication
+issue-flow #42
+issue-flow
+```
+
+## Codex Compatibility Notes
+
+Codex support is intentionally narrower than Claude Code support:
+
+| Capability | Status in Codex | Practical impact |
+|------------|-----------------|------------------|
+| Skill routing | Supported through installed skills | Core workflow works |
+| Hooks | Not available | State enforcement relies on skill instructions |
+| Agent tool | Limited compared with Claude Code | Some execution paths fall back to simpler behavior |
+| Browser-driven flows | Not available | Web-assisted paths are skipped |
+
+Issue-Flow is still useful in Codex, but the Claude Code path remains the more fully integrated experience. The supported Codex setup is still plugin-based: install `superpowers` from the local plugin directory entry, and install `issue-flow` from this repository's marketplace entry.
 
 ## Updating
 
 ```bash
-cd ~/.codex/issue-flow && git pull
+cd /path/to/issue-flow && git pull
 ```
-
-Skills update instantly through the symlink.
 
 ## Uninstalling
 
 ```bash
-rm ~/.agents/skills/issue-flow
+# Disable or uninstall `issue-flow` from the Codex plugin directory UI,
+# then remove its entry from ./.agents/plugins/marketplace.json if needed.
 ```
-
-Optionally delete the clone: `rm -rf ~/.codex/issue-flow`.

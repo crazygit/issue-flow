@@ -1,32 +1,36 @@
 ---
-name: Bug Report
-about: Report a bug in issue-flow
+name: Bug report
+about: Report a problem with Issue-Flow
 title: "[Bug] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
-## Bug Description
+## Summary
 
-A clear description of the bug.
+What went wrong?
 
-## Steps to Reproduce
+## Reproduction
 
-1.
-2.
-3.
+1. 
+2. 
+3. 
 
-## Expected Behavior
+## Expected behavior
 
-What you expected to happen.
+What did you expect to happen instead?
 
-## Actual Behavior
+## Actual behavior
 
-What actually happened.
+What happened in practice?
 
 ## Environment
 
 - Platform: [Claude Code / Codex]
+- Issue-Flow version:
 - superpowers version:
-- issue-flow version:
 - OS:
+
+## Additional context
+
+Include logs, screenshots, or links if they help explain the issue.

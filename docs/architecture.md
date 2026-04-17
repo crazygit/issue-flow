@@ -1,115 +1,117 @@
 # Architecture
 
-## Overview
+Issue-Flow is a thin orchestration layer for issue-driven development. It does not try to replace a full coding methodology. Instead, it coordinates a small set of workflow-specific skills and keeps the current session aligned with a single issue lifecycle.
 
-Issue-flow is an issue-driven development orchestrator built on a state machine pattern. It coordinates 10 workflow skills through a central orchestrator, with [superpowers](https://github.com/obra/superpowers) as a peer dependency providing core development capabilities.
+## Design Goals
 
-## Repository Structure
+- Keep the repository lightweight
+- Reuse proven workflows from `superpowers`
+- Make workflow progress explicit through a persisted state machine
+- Support both guided and automated execution styles
+- Work across Claude Code and Codex without splitting the codebase into separate products
 
-```
-issue-flow/
-├── .claude-plugin/          # Claude Code plugin manifests
-├── .codex/                  # Codex installation
-├── .github/                 # Issue/PR templates
-├── AGENTS.md                # Codex runtime instructions (@-references)
-├── CLAUDE.md                # Contributor guidelines
-├── agents/                  # Subagent definitions
-├── hooks/                   # Hook scripts and declarations
-├── references/              # Shared reference docs
-├── scripts/                 # Utility scripts
-├── skills/                  # Skill definitions
-├── tests/                   # Test suites
-└── docs/                    # Project documentation
-```
+## High-Level Model
 
-## Components
+Issue-Flow has three main responsibilities:
 
-### Orchestrator (`issue-flow`)
+1. Track the current workflow phase
+2. Route the agent to the correct skill for that phase
+3. Prevent invalid transitions where the host platform allows enforcement
 
-The central state machine coordinator. Responsibilities:
-- Detect current development phase by reading `.issue-flow/state`
-- Dispatch the appropriate sub-skill for the current phase
-- Advance or rollback state based on sub-skill results
-- Manage manual vs auto mode behavior
+Everything else should remain delegated to focused skills or to `superpowers`.
 
-The orchestrator does NOT contain any execution logic — all concrete work is delegated to sub-skills.
+## Core Components
 
-### Workflow Skills (`issue-*`)
+### Orchestrator skill
 
-10 skills covering the full development lifecycle:
+`skills/issue-flow/SKILL.md` is the entry point. It reads session state from `.issue-flow/`, determines the current phase, and hands control to the next workflow skill.
 
-| Skill | Purpose | Superpowers Dependency |
-|-------|---------|----------------------|
-| `issue-brainstorm` | Requirement analysis → design spec | `brainstorming` |
-| `issue-create` | Design spec → GitHub Issue | — |
-| `issue-pick` | Issue → worktree + branch setup | `using-git-worktrees` |
-| `issue-plan` | Issue → implementation plan | `writing-plans` |
-| `issue-implement` | Plan → code changes | `subagent-driven-development`, `executing-plans` |
-| `issue-verify` | Code → test + lint + review | — |
-| `issue-commit` | Changes → git commits | — |
-| `issue-pr` | Commits → Pull Request | — |
-| `issue-finish` | PR done → cleanup | `finishing-a-development-branch` |
+The orchestrator should stay small. It owns coordination, not execution details.
 
-### Superpowers (peer dependency)
+### Workflow skills
 
-[superpowers](https://github.com/obra/superpowers) provides the core development capabilities:
+The `skills/issue-*` files implement each phase of the lifecycle:
 
-| Superpowers Skill | Used By | Purpose |
-|-------------------|---------|---------|
-| `brainstorming` | `issue-brainstorm` | Structured design analysis |
-| `writing-plans` | `issue-plan` | Plan generation from design specs |
-| `subagent-driven-development` | `issue-implement` | Parallel plan execution via subagents |
-| `executing-plans` | `issue-implement` | Sequential plan execution (fallback) |
-| `using-git-worktrees` | `issue-pick` | Worktree and branch management |
-| `finishing-a-development-branch` | `issue-finish` | Branch lifecycle management |
-
-### Agents
-
-Subagent definitions in `agents/`:
-- `code-reviewer` — Used by `issue-verify` for structured code review
+| Skill | Responsibility |
+|-------|----------------|
+| `issue-brainstorm` | Turn a request into a design direction |
+| `issue-create` | Convert a refined idea into a GitHub issue |
+| `issue-pick` | Attach work to a specific issue and branch context |
+| `issue-plan` | Turn issue context into an implementation plan |
+| `issue-implement` | Execute the approved plan |
+| `issue-verify` | Run verification and review steps |
+| `issue-commit` | Prepare commits with predictable structure |
+| `issue-pr` | Open or update the pull request |
+| `issue-finish` | Clean up and close out the workflow |
 
 ### Hooks
 
-Two hook mechanisms, declared in `hooks/hooks.json`:
+`hooks/` contains the platform-side enforcement pieces:
 
-| Hook Type | Script | Purpose |
-|-----------|--------|---------|
-| `SessionStart` | `hooks/session-start` | Injects issue-flow awareness at every session start |
-| `PreToolUse` | `hooks/state-transition-guard` | Validates legal state transitions for `Skill(issue-*)` calls |
+- `session-start` reminds the host about Issue-Flow context at the start of a session
+- `state-transition-guard` blocks invalid `issue-*` skill transitions where hook support exists
 
-## State Machine
+### Agents
 
-```
-none → brainstorm → picked → planned → implementing → verifying → committing → pring → finished
-                                       ↑________________↓
-```
+`agents/` contains supporting agent definitions, such as the code-review worker used during verification flows.
 
-See `skills/issue-flow/references/state-schema.md` for the full definition.
+## State Model
 
-## State Persistence
+Issue-Flow persists session state in a `.issue-flow/` directory at the worktree root. Typical files include:
 
-Session state is stored in `.issue-flow/` at the worktree root:
-- `state` — Current phase (read/write by orchestrator only)
-- `mode` — `auto` or `manual`
-- `issue.json` — Issue metadata (number, title, url, type)
-- `plan-path` — Path to the implementation plan
-- `verify-report.md` — Verification results
+- `state` - current workflow phase
+- `mode` - manual or auto
+- `issue.json` - issue metadata
+- `plan-path` - current implementation plan path
+- `verify-report.md` - verification output
 
-## Dependency Design
+The source of truth for valid states and transitions is [../skills/issue-flow/references/state-schema.md](../skills/issue-flow/references/state-schema.md).
 
-Skills declare dependencies by listing `Skill(name)` in `allowed-tools`:
+## Why Issue-Flow Depends On Superpowers
 
-```yaml
-allowed-tools:
-  - Skill(superpowers:brainstorming)  # peer dependency
-```
+Issue-Flow intentionally does not duplicate brainstorming, planning, or execution methodology. Those capabilities already exist in `superpowers`, which remains the runtime dependency for:
 
-Issue-flow requires superpowers to be installed. The SessionStart hook checks availability and prompts installation if missing.
+- structured design refinement
+- implementation planning
+- execution workflows
+- development branch finalization
 
-## Multi-Platform Support
+This keeps Issue-Flow focused on orchestration instead of evolving into a second general-purpose agent framework.
+
+## Platform Support
 
 ### Claude Code
-Full support: Agent, Skill, AskUserQuestion, hooks.
+
+Claude Code is the primary integration target because it supports:
+
+- plugin manifests
+- hooks
+- skill chaining
+- stronger session-level workflow enforcement
 
 ### Codex
-Limited support: no Agent/Skill tools, no hooks. Skills fall back to sequential execution and auto-mode behavior. See `skills/issue-flow/references/codex-tools.md` for tool mapping.
+
+Codex is supported through the plugin-bundle structure recommended by the official Codex plugin docs: a plugin manifest at `.codex-plugin/plugin.json` plus a repo marketplace at `.agents/plugins/marketplace.json`. The workflow still depends on a separately installed `superpowers` plugin, and some host-level behavior remains less strict than Claude Code.
+
+## Repository Layout
+
+```text
+.
+├── skills/           # Workflow skills and per-skill references
+├── hooks/            # Hook declarations and guard scripts
+├── agents/           # Supporting agent definitions
+├── docs/             # User-facing and contributor-facing docs
+├── tests/            # State machine and skill-loading tests
+├── .agents/plugins/  # Repo-scoped Codex marketplace catalog
+├── .claude-plugin/   # Claude Code plugin metadata
+└── .codex-plugin/    # Codex plugin metadata
+```
+
+## Change Boundaries
+
+When changing the project, keep these boundaries in mind:
+
+- State-machine changes are high-risk and require matching updates to docs and guards
+- Skill files should stay focused on phase-specific behavior
+- `superpowers` dependencies should remain explicit, not copied into this repository casually
+- Platform-specific behavior should be additive where possible, not separate forks of the workflow

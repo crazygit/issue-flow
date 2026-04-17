@@ -1,28 +1,28 @@
 ---
-name: Feature Request
-about: Suggest a new feature for issue-flow
+name: Feature request
+about: Suggest an improvement to Issue-Flow
 title: "[Feature] "
 labels: enhancement
-assignees: ''
+assignees: ""
 ---
 
-## Goal
+## Problem
 
-What should this feature accomplish?
+What problem are you trying to solve?
 
-## Motivation
+## Proposed improvement
 
-Why is this feature needed? What problem does it solve?
+What would you like Issue-Flow to do?
 
-## Proposed Solution
+## Why it matters
 
-Describe your proposed approach.
+How would this improve the user or contributor experience?
 
-## Acceptance Criteria
+## Acceptance criteria
 
 - [ ]
 - [ ]
 
-## Additional Context
+## Additional context
 
-Any other context or references.
+Link related issues, prior discussion, or examples from similar projects if relevant.
