@@ -23,6 +23,7 @@ allowed-tools:
   - Bash(gh pr create *)
   - Bash(gh pr list --head *)
   - Bash(gh issue view --comments *)
+  - Bash(gh issue view * --json *)
   - Bash(mktemp *)
   - Bash(rm *)
 ---
@@ -59,7 +60,7 @@ allowed-tools:
 3. 当前分支已有的 PR（`gh pr list --head <branch>`）
 4. `$ARGUMENTS` 中的 Issue 编号
 
-提取到编号后，运行 `gh issue view <N> --comments` 读取 Issue 内容，用于生成标题和正文。
+提取到编号后，优先运行 `gh issue view <N> --json title,body,labels` 读取 Issue 标题、正文和 labels；如有必要再运行 `gh issue view <N> --comments` 补充上下文，用于生成 PR 标题、正文和默认 label。
 
 如果所有来源都无法提取：
 - 提示用户手动提供 Issue 编号
@@ -73,9 +74,12 @@ allowed-tools:
 ### 5. 起草 PR 内容
 
 1. 根据 `references/templates.md` 中的 PR 模板起草内容，优先使用 `Write` 写入 `mktemp` 创建的临时文件，避免依赖 shell 重定向
-2. PR 标题概括当前分支的最终交付内容
+2. PR 标题必须使用中文，概括当前分支的最终交付内容，不使用英文 Conventional Commits 格式
 3. 如果已关联 Issue，在正文中加入 `Closes #N`
-4. 变更说明必须严格来源于 `git diff`、提交记录和 Issue 内容，不编造
+4. PR 正文必须使用中文
+5. 如果已关联 Issue，默认继承 Issue 的首个 label 作为 PR label；如果未关联 Issue，则按变更类型推断默认 label：新功能→`enhancement`、缺陷修复→`bug`、代码重构→`refactor`、文档更新→`documentation`、工具/CI/构建→`chore`、性能优化→`performance`
+6. 创建时默认将 PR 指派给当前登录用户（`@me`）
+7. 变更说明必须严格来源于 `git diff`、提交记录和 Issue 内容，不编造
 
 ### 6. 创建 PR
 
@@ -86,7 +90,7 @@ allowed-tools:
    ```bash
    TMPFILE=$(mktemp /tmp/pr-draft.XXXXXX.md)
    # 使用 Write 将 PR body 写入 $TMPFILE
-   gh pr create --web --title "..." --body-file "$TMPFILE"
+   gh pr create --web --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
    rm -f "$TMPFILE"
    ```
 3. 使用 `--web` 让用户在浏览器中审核后手动提交
@@ -98,7 +102,7 @@ allowed-tools:
 ```bash
 TMPFILE=$(mktemp /tmp/pr-draft.XXXXXX.md)
 # 使用 Write 将 PR body 写入 $TMPFILE
-gh pr create --title "..." --body-file "$TMPFILE"
+gh pr create --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
 rm -f "$TMPFILE"
 ```
 
@@ -107,8 +111,9 @@ rm -f "$TMPFILE"
 ## 规则
 
 - `issue-pr` 不负责 commit 规范、测试规范、review 流程和分支清理
-- PR 标题和正文以仓库现有协作习惯为准
-- PR 正文使用中文
+- PR 标题和正文全部使用中文
+- PR 创建时默认添加 label，并优先继承关联 Issue 的 label
+- 创建 PR 时默认使用 `--assignee "@me"` 将其分配给自己
 - 找到 Issue 时，正文应关联 Issue（`Closes #N`）
 - 不自动 `git push`
 - manual 模式下所有 GitHub 写操作使用 `--web` 由人工审核

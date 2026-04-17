@@ -63,6 +63,41 @@ for skill_dir in "$SKILLS_DIR"/issue-*/; do
 done
 
 echo ""
+echo "=== Content Constraint Tests ==="
+
+echo -n "  issue-create: default label + assignee + Chinese ... "
+if grep -F -q -- '--label "..."' "$SKILLS_DIR/issue-create/SKILL.md" \
+  && grep -q -- '--assignee "@me"' "$SKILLS_DIR/issue-create/SKILL.md" \
+  && grep -q 'Issue 标题和正文全部使用中文' "$SKILLS_DIR/issue-create/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  issue-pr: default label + assignee + Chinese ... "
+if grep -F -q -- '--label "..."' "$SKILLS_DIR/issue-pr/SKILL.md" \
+  && grep -q -- '--assignee "@me"' "$SKILLS_DIR/issue-pr/SKILL.md" \
+  && grep -q 'PR 标题和正文全部使用中文' "$SKILLS_DIR/issue-pr/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  issue-commit: commit message stays English ... "
+if grep -q 'commit message 使用英文' "$SKILLS_DIR/issue-commit/SKILL.md" \
+  && grep -q '不要改成中文' "$SKILLS_DIR/issue-commit/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo ""
 echo "=== Results: $PASS passed, $FAIL failed ==="
 
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

@@ -69,7 +69,7 @@ allowed-tools:
 读取 `references/commit-templates.md`，按模板格式生成 Conventional Commit + Emoji 消息。
 
 - 消息格式：`<Emoji> <type>(<scope>): <subject>`
-- subject 使用英文祈使句，首字母小写，句末不加句号
+- subject 使用英文祈使句，首字母小写，句末不加句号；不要改成中文
 - header 整行不超过 72 字符
 - 当 `.issue-flow/issue.json` 存在时，footer 添加 `Refs #<N>`
 
@@ -102,7 +102,7 @@ allowed-tools:
 
 - **时态**: 祈使句（`add feature` 而非 `added feature`）
 - **简洁**: 第一行保持在 72 字符以内
-- **commit message 使用英文**（遵循 CLAUDE.md 规则）
+- **commit message 使用英文**（遵循 CLAUDE.md 规则，不使用中文）
 
 ## 规则
 

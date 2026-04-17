@@ -47,7 +47,7 @@ allowed-tools:
 
 使用 AskUserQuestion 按以下结构逐项展示给用户，等待确认或修正：
 - 标题（中文，简洁描述要交付的结果）
-- 类型 → 对应 label
+- 类型 → 对应默认 label
 - 背景
 - 验收标准（逐条列出）
 - 范围（包含 / 不包含）
@@ -55,7 +55,7 @@ allowed-tools:
 
 ### 5. 起草 Issue
 
-根据确认后的需求（manual）或收集的需求信息（auto），按类型选择 `references/templates.md` 中对应模板，填充内容后写入临时文件。优先使用 `Write` 写入 `mktemp` 创建的临时文件，避免依赖 shell 重定向。标题使用中文，不加前缀。类型与 label 的映射：
+根据确认后的需求（manual）或收集的需求信息（auto），按类型选择 `references/templates.md` 中对应模板，填充内容后写入临时文件。优先使用 `Write` 写入 `mktemp` 创建的临时文件，避免依赖 shell 重定向。标题使用中文，不加前缀。创建时默认将 Issue 指派给当前登录用户（`@me`）。类型与默认 label 的映射：
 - 新功能 → `enhancement`
 - 缺陷修复 → `bug`
 - 代码重构 → `refactor`
@@ -71,7 +71,7 @@ allowed-tools:
 ```bash
 TMPFILE=$(mktemp /tmp/issue-draft.XXXXXX.md)
 # 使用 Write 将起草的 Issue 内容写入 $TMPFILE
-gh issue create --web --title "..." --label "..." --body-file "$TMPFILE"
+gh issue create --web --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
 rm -f "$TMPFILE"
 ```
 
@@ -85,7 +85,7 @@ rm -f "$TMPFILE"
 ```bash
 TMPFILE=$(mktemp /tmp/issue-draft.XXXXXX.md)
 # 使用 Write 将起草的 Issue 内容写入 $TMPFILE
-gh issue create --title "..." --label "..." --body-file "$TMPFILE"
+gh issue create --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
 rm -f "$TMPFILE"
 ```
 
@@ -98,7 +98,8 @@ rm -f "$TMPFILE"
 
 - Issue 标题和正文全部使用中文
 - 标题表达结果，不加 `feat:`、`fix:` 等前缀
-- 分类通过 `--label` 参数实现，不硬编码到标题
+- 默认分类通过 `--label` 参数实现，不硬编码到标题
+- 创建 Issue 时默认使用 `--assignee "@me"` 将其分配给自己
 - 不要编造内容 — 严格从对话上下文和用户输入中推导
 - 对话中的要点列表自动转换为验收标准
 - 概述保持简洁（1-3 句）
