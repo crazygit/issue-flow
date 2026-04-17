@@ -33,8 +33,10 @@ Closes #<N>
 
 附加规范：
 
-- PR title 使用英文 Conventional Commits
+- PR title 使用中文，概括最终交付结果，不使用英文 Conventional Commits
 - PR body 使用中文描述变更
+- 创建 PR 时默认添加 label；若已关联 Issue，优先继承该 Issue 的首个 label
+- 创建 PR 时默认使用 `--assignee "@me"` 将其分配给自己
 - 关联 Issue 时使用 `Closes #<N>`
 - 本地开发中的 commit 如需关联 Issue，使用 `Refs #<N>`，不要使用 `Closes/Fixes #<N>`
 
