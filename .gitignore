@@ -2,3 +2,6 @@
 .worktrees/
 node_modules/
 .DS_Store
+
+.gemini/
+gha-creds-*.json
