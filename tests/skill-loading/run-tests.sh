@@ -66,8 +66,8 @@ echo ""
 echo "=== Content Constraint Tests ==="
 
 echo -n "  issue-create: default label + assignee + Chinese ... "
-if grep -F -q -- '--label "..."' "$SKILLS_DIR/issue-create/SKILL.md" \
-+if grep -q -- '--label' "$SKILLS_DIR/issue-create/SKILL.md" \
+if grep -q -- '--label' "$SKILLS_DIR/issue-create/SKILL.md" \
+  && grep -q -- '--assignee "@me"' "$SKILLS_DIR/issue-create/SKILL.md" \
   && grep -q 'Issue 标题和正文全部使用中文' "$SKILLS_DIR/issue-create/SKILL.md"; then
   echo "ok"
   PASS=$((PASS + 1))

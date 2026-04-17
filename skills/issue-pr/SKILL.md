@@ -77,7 +77,7 @@ allowed-tools:
 2. PR 标题必须使用中文，概括当前分支的最终交付内容，不使用英文 Conventional Commits 格式
 3. 如果已关联 Issue，在正文中加入 `Closes #N`
 4. PR 正文必须使用中文
-+5. 如果已关联 Issue，默认继承 Issue 的首个 label 作为 PR label；如果未关联 Issue，则按变更类型推断默认 label：新功能→`enhancement`、缺陷修复→`bug`、代码重构→`refactor`、文档更新→`documentation`、工具/CI/构建→`chore`、性能优化→`performance`、依赖升级→`dependencies`
+5. 如果已关联 Issue，默认继承 Issue 的首个 label 作为 PR label；如果未关联 Issue，则按变更类型推断默认 label：新功能→enhancement、缺陷修复→bug、代码重构→refactor、文档更新→documentation、工具/CI/构建→chore、性能优化→performance、依赖升级→dependencies
 6. 创建时默认将 PR 指派给当前登录用户（`@me`）
 7. 变更说明必须严格来源于 `git diff`、提交记录和 Issue 内容，不编造
 
@@ -112,7 +112,7 @@ rm -f "$TMPFILE"
 
 - `issue-pr` 不负责 commit 规范、测试规范、review 流程和分支清理
 - PR 标题和正文全部使用中文
-+- PR 创建时默认添加 label，并优先继承关联 Issue 的首个 label
+- PR 创建时默认添加 label，并优先继承关联 Issue 的首个 label
 - 创建 PR 时默认使用 `--assignee "@me"` 将其分配给自己
 - 找到 Issue 时，正文应关联 Issue（`Closes #N`）
 - 不自动 `git push`
