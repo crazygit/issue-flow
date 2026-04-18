@@ -39,4 +39,4 @@ Issue-Flow is intentionally an orchestrator, not a bundled workflow platform. Ke
 
 ## Recommendation
 
-Treat Issue-Flow as a focused orchestration plugin with an explicit runtime dependency. For Codex, prefer the documented plugin-bundle flow: install `Superpowers` from `OpenAI Curated`, use `scripts/install-codex.sh` to stage `~/.codex/local-plugins/issue-flow` plus `~/.agents/plugins/marketplace.json`, and install from the plugin directory instead of wiring `skills/` into `~/.agents/skills/` manually.
+Treat Issue-Flow as a focused orchestration plugin with an explicit runtime dependency. For Codex, prefer the documented plugin-bundle flow: install `Superpowers` from `OpenAI Curated`, use `scripts/install-codex.sh` to stage `~/.codex/plugins/issue-flow` plus `~/.agents/plugins/marketplace.json`, and install from the plugin directory instead of wiring `skills/` into `~/.agents/skills/` manually.

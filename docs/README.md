@@ -5,7 +5,6 @@ This directory collects the deeper project documentation that does not belong on
 ## Start Here
 
 - [../README.md](../README.md) - project overview, quick start, and repository map
-- [../INSTALL.md](../INSTALL.md) - installation and update instructions
 - [../CONTRIBUTING.md](../CONTRIBUTING.md) - contributor workflow and repository rules
 
 ## Technical Docs
@@ -17,6 +16,6 @@ This directory collects the deeper project documentation that does not belong on
 ## Audience Guide
 
 - If you are evaluating the project, start with the root README.
-- If you are installing the project, read `INSTALL.md`.
+- If you are installing the project, read the installation section in `README.md`.
 - If you are changing workflow behavior, start with `architecture.md` and `testing.md`.
 - If you are preparing a pull request, read `CONTRIBUTING.md`.

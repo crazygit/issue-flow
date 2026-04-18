@@ -34,23 +34,51 @@ Each phase maps to a focused skill:
 
 The top-level `issue-flow` skill is the orchestrator. It reads the current session state and routes the agent to the next correct step.
 
-## Quick Start
+## Installation
 
 Issue-Flow currently supports Claude Code and Codex.
 
+### Requirements
+
+Issue-Flow depends on:
+
+- `git`
+- `gh` for GitHub issue and pull request operations
+- [superpowers](https://github.com/obra/superpowers) as a runtime dependency
+
 ### Claude Code
+
+Install `superpowers` first:
 
 ```bash
 /plugin install superpowers@claude-plugins-official
+```
+
+Then add the Issue-Flow marketplace and install the plugin:
+
+```bash
 /plugin marketplace add crazygit/issue-flow
 /plugin install issue-flow@issue-flow-marketplace
 ```
 
+Restart Claude Code if the new plugin does not appear immediately.
+
 ### Codex
 
-Preferred path: install `Superpowers` from `OpenAI Curated`, then use the installer script to prepare a personal Codex marketplace entry for `issue-flow`.
+Codex installation has two distinct parts:
 
-First, enable `Superpowers` from the Codex plugin directory under `OpenAI Curated`.
+1. Install `Superpowers` from the Codex plugin UI under `OpenAI Curated`.
+2. Register this repository as a local plugin, then install `issue-flow` from `Local Plugins`.
+
+Open the plugin UI in Codex:
+
+```text
+/plugins
+```
+
+Search for `Superpowers`, then install or enable it from `OpenAI Curated`.
+
+After `Superpowers` is enabled, run the installer from this repository:
 
 ```bash
 bash scripts/install-codex.sh
@@ -58,17 +86,26 @@ bash scripts/install-codex.sh
 
 The script will:
 
-- copy this repository into `~/.codex/local-plugins/issue-flow`
-- create or update `~/.agents/plugins/marketplace.json` with the local `issue-flow` entry
+- copy this repository to `~/.codex/plugins/issue-flow`
+- create or update `~/.agents/plugins/marketplace.json`
+- register `issue-flow` under the `Local Plugins` marketplace
 
-For local development against the current checkout, use:
+If you are developing from the current checkout and want Codex to use the live repo instead of a copied snapshot, run:
 
 ```bash
 bash scripts/install-codex.sh --dev-link
 ```
 
-Then restart Codex if needed, open the plugin directory, choose `Local Plugins`, and install or enable `issue-flow`.
-Then start a workflow:
+Then restart Codex, open the plugin directory again, choose `Local Plugins`, and install or enable `issue-flow`.
+
+Before starting a workflow, confirm both plugins are enabled:
+
+- `Superpowers` under `OpenAI Curated`
+- `issue-flow` under `Local Plugins`
+
+### Start A Workflow
+
+After installation, start or resume a workflow:
 
 ```bash
 /issue-flow Add email login support
@@ -77,7 +114,37 @@ Then start a workflow:
 /issue-flow
 ```
 
-For platform-specific details, see [INSTALL.md](INSTALL.md).
+In Codex environments that expose commands without the leading slash, `issue-flow` also works.
+
+### Updating
+
+Claude Code:
+
+```bash
+/plugin marketplace update issue-flow-marketplace
+/plugin update issue-flow@issue-flow-marketplace
+```
+
+Codex:
+
+```bash
+bash scripts/install-codex.sh
+```
+
+### Uninstalling
+
+Claude Code:
+
+```bash
+/plugin uninstall issue-flow@issue-flow-marketplace
+/plugin marketplace remove issue-flow-marketplace
+```
+
+Codex:
+
+- Disable or uninstall `issue-flow` and `Superpowers` from the plugin UI
+- Remove `~/.codex/plugins/issue-flow` if you also want to delete the local staged copy
+- Remove the `issue-flow` entry from `~/.agents/plugins/marketplace.json` if you no longer want it listed in `Local Plugins`
 
 ## Who This Is For
 
@@ -106,7 +173,6 @@ issue-flow/
 
 ## Documentation
 
-- [INSTALL.md](INSTALL.md) - installation and update instructions
 - [docs/README.md](docs/README.md) - documentation index
 - [docs/architecture.md](docs/architecture.md) - architecture and design boundaries
 - [docs/distribution.md](docs/distribution.md) - packaging model and runtime dependency notes
