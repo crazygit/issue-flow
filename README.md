@@ -67,7 +67,6 @@ bash scripts/install-codex.sh --dev-link
 ```
 
 Then restart Codex if needed, open the plugin directory, choose `Local Plugins`, and install or enable `issue-flow`.
-
 Then start a workflow:
 
 ```bash

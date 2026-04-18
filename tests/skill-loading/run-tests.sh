@@ -97,8 +97,9 @@ else
   FAIL=$((FAIL + 1))
 fi
 
-echo -n "  issue-pr: default label + assignee + Chinese ... "
-if grep -F -q -- '--label "..."' "$SKILLS_DIR/issue-pr/SKILL.md" \
+echo -n "  issue-pr: default draft + label + assignee + Chinese ... "
+if grep -F -q -- '--draft' "$SKILLS_DIR/issue-pr/SKILL.md" \
+  && grep -F -q -- '--label "..."' "$SKILLS_DIR/issue-pr/SKILL.md" \
   && grep -q -- '--assignee "@me"' "$SKILLS_DIR/issue-pr/SKILL.md" \
   && grep -q 'PR 标题和正文全部使用中文' "$SKILLS_DIR/issue-pr/SKILL.md"; then
   echo "ok"

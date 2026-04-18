@@ -22,6 +22,6 @@ Issue-flow skills use Claude Code tool names. Codex uses different names.
 - `issue-verify`: Code review done via direct diff analysis instead of `Agent(code-reviewer)`
 - `issue-brainstorm`: No user interaction, outputs design spec directly
 - `issue-create`: Always uses direct creation (no `--web` option)
-- `issue-pr`: Always uses direct creation (no `--web` option)
+- `issue-pr`: Always uses direct creation and defaults to draft PR (no `--web` option)
 - `issue-commit`: Commits directly without user confirmation
 - All skills: Auto-mode behavior by default
