@@ -13,6 +13,9 @@ allowed-tools:
   - AskUserQuestion
   - Bash(git remote -v)
   - Bash(git rev-parse --is-inside-work-tree)
+  - Bash(git fetch origin main)
+  - Bash(git checkout main)
+  - Bash(git merge --ff-only origin/main)
   - Bash(gh auth status *)
   - Bash(gh repo view *)
   - Bash(gh issue view *)
@@ -53,12 +56,17 @@ allowed-tools:
 
 ### 4. 创建 worktree 和分支
 
-1. 使用 `/superpowers:using-git-worktrees` 创建隔离工作区
-2. 分支命名：`<type>/<N>-<slug>`
+1. 先更新本地 `main` 到最新 `origin/main`：
+   - 运行 `git fetch origin main`
+   - 运行 `git checkout main`
+   - 运行 `git merge --ff-only origin/main`
+   - 任一步失败则停止，不创建 worktree；不要自动 `merge` 或 `rebase`
+2. 使用 `/superpowers:using-git-worktrees` 创建隔离工作区
+3. 分支命名：`<type>/<N>-<slug>`
    - type 从 Issue label 推断：enhancement→feature, bug→fix, refactor→refactor, 其他→chore
    - N 为 Issue 编号
    - slug 从 Issue 标题生成简短英文标识
-3. 如仓库已有强约束的分支命名规则，退回仓库既有格式
+4. 如仓库已有强约束的分支命名规则，退回仓库既有格式
 
 ### 5. 初始化 .issue-flow 上下文
 

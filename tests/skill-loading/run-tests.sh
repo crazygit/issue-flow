@@ -133,6 +133,18 @@ else
   FAIL=$((FAIL + 1))
 fi
 
+echo -n "  issue-pick: updates local main before creating worktree ... "
+if grep -q 'Bash(git fetch origin main)' "$SKILLS_DIR/issue-pick/SKILL.md" \
+  && grep -q 'Bash(git checkout main)' "$SKILLS_DIR/issue-pick/SKILL.md" \
+  && grep -q 'Bash(git merge --ff-only origin/main)' "$SKILLS_DIR/issue-pick/SKILL.md" \
+  && grep -q '先更新本地 `main` 到最新 `origin/main`' "$SKILLS_DIR/issue-pick/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
 echo -n "  issue-flow: install guidance covers Claude and Codex ... "
 if grep -q '/plugin install superpowers@claude-plugins-official' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q '/plugin marketplace add crazygit/issue-flow' "$SKILLS_DIR/issue-flow/SKILL.md" \
