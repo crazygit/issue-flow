@@ -28,7 +28,7 @@ allowed-tools:
   - Bash(rm *)
 ---
 
-创建 PR。该 skill 只负责 PR 草稿和创建，不负责测试、review、commit、push 或分支收尾。
+创建 PR。该 skill 只负责 PR 草稿和创建，不负责测试、review、commit、push 或分支收尾。创建完成后，流程应进入 review 闭环，而不是直接结束。
 
 ## 前置条件
 
@@ -111,6 +111,7 @@ rm -f "$TMPFILE"
 ## 规则
 
 - `issue-pr` 不负责 commit 规范、测试规范、review 流程和分支清理
+- 成功创建 PR 后，后续流程进入 `reviewing` 阶段
 - PR 标题和正文全部使用中文
 - PR 创建时默认添加 label，并优先继承关联 Issue 的首个 label
 - 创建 PR 时默认使用 `--assignee "@me"` 将其分配给自己

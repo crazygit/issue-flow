@@ -28,12 +28,15 @@ allowed-tools:
   - Bash(cargo test *)
   - Bash(cargo clippy *)
   - Bash(gh issue view *)
+  - Bash(gh pr list --head *)
+  - Bash(gh pr view *)
+  - Bash(gh pr checks *)
   - Agent
 ---
 
 # Issue Verify
 
-对当前分支的变更进行端到端验证：测试、代码审查、验收标准覆盖度检查。
+对当前分支的变更进行端到端验证：测试、代码审查、验收标准覆盖度检查，并在 PR 已创建后处理 review/CI 闭环。
 
 ## 执行步骤
 
@@ -48,6 +51,17 @@ allowed-tools:
 检查 `.issue-flow/mode`：
 - `auto` → **auto 模式**
 - 其他/不存在 → **manual 模式**
+
+读取 `.issue-flow/state`：
+- `implementing`：实现后的首次验证
+- `reviewing`：PR 已创建后的再次验证，需额外关注 review/CI 反馈是否已被处理
+
+如果当前 `state=reviewing`：
+
+1. 运行 `gh pr list --head <branch>` 定位当前分支关联的 PR
+2. 若找到 PR，运行 `gh pr view <number> --comments` 读取 review feedback 与讨论上下文
+3. 运行 `gh pr checks <number>` 读取 CI/check 状态摘要
+4. 若未找到 PR，记录为 review loop 缺口，并在报告中明确说明
 
 ### 3. 运行测试与 Lint
 
@@ -89,7 +103,19 @@ allowed-tools:
 - auto 模式下尝试自动补充实现（dispatch subagent），然后重新比对，最多 3 次
 - manual 模式下向用户报告缺口，等待用户处理
 
-### 6. 生成验证报告
+### 6. Review Loop 检查（仅 `state=reviewing`）
+
+基于 PR 上下文补充检查：
+
+1. review comments 中是否存在明显未处理的阻塞反馈
+2. `gh pr checks` 是否仍存在失败或 pending 的关键检查
+3. 当前分支变更是否已覆盖本轮反馈中要求补充的内容
+
+若存在阻塞项：
+- manual 模式下向用户报告，建议回到实现或继续处理反馈
+- auto 模式下停止自动推进，保持 `reviewing` 或回退 `implementing`
+
+### 7. 生成验证报告
 
 将结果写入 `.issue-flow/verify-report.md`：
 
@@ -109,16 +135,24 @@ allowed-tools:
 - ✅ {标准 1}
 - ❌ {标准 2} — {原因}
 
+## Review Loop
+- PR: {编号或未找到}
+- Review Feedback: {已处理 / 未处理 / 无}
+- Checks: {通过 / 失败 / pending / 未找到}
+
 ## 结论
 {通过 / 未通过}
 ```
 
-### 7. 模式处理与输出
+### 8. 模式处理与输出
 
 #### 通过时
 
 - **manual**：展示报告摘要，告知用户验证通过，建议进入提交阶段
+- **manual**：若当前 `state=reviewing`，提示用户当前仍处于 review 阶段，可继续等待反馈或在确认结束后使用 `/issue-flow finish` 收尾
 - **auto**：直接输出 "验证通过"
+
+> 若当前 `state=reviewing`，应以前述第二条为准，不再提示进入提交阶段。
 
 #### 失败时
 
@@ -132,3 +166,5 @@ allowed-tools:
 - 自动修复最多 3 次，超过则停止并报错
 - manual 模式下所有自动修复需向用户汇报结果
 - 验收标准比对必须基于实际代码变更，不能仅基于测试通过就推断
+- 当 `state=reviewing` 时，验证通过也不自动视为流程结束
+- 当 `state=reviewing` 时，必须显式读取 PR feedback 与 check 状态，不能只重复本地测试

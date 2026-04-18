@@ -37,11 +37,12 @@ The `skills/issue-*` files implement each phase of the lifecycle:
 | `issue-brainstorm` | Turn a request into a design direction |
 | `issue-create` | Convert a refined idea into a GitHub issue |
 | `issue-pick` | Attach work to a specific issue and branch context |
+| `issue-research` | Research the current codebase before planning |
 | `issue-plan` | Turn issue context into an implementation plan |
 | `issue-implement` | Execute the approved plan |
 | `issue-verify` | Run verification and review steps |
 | `issue-commit` | Prepare commits with predictable structure |
-| `issue-pr` | Open or update the pull request |
+| `issue-pr` | Open or update the pull request and hand off to review |
 | `issue-finish` | Clean up and close out the workflow |
 
 ### Hooks
@@ -62,6 +63,7 @@ Issue-Flow persists session state in a `.issue-flow/` directory at the worktree 
 - `state` - current workflow phase
 - `mode` - manual or auto
 - `issue.json` - issue metadata
+- `research-notes.md` - explicit pre-plan research summary
 - `plan-path` - current implementation plan path
 - `verify-report.md` - verification output
 

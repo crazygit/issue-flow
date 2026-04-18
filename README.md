@@ -17,18 +17,19 @@ Issue-Flow is built to work with [superpowers](https://github.com/obra/superpowe
 Issue-Flow tracks a development session through a small workflow state machine:
 
 ```text
-brainstorm -> picked -> planned -> implementing -> verifying -> committing -> pring -> finished
+brainstorm -> picked -> researching -> planned -> implementing -> verifying -> committing -> pring -> reviewing -> finished
 ```
 
 Each phase maps to a focused skill:
 
 - `issue-brainstorm` turns a rough request into a design direction
 - `issue-pick` attaches the session to a specific issue and branch context
+- `issue-research` captures codebase findings before planning
 - `issue-plan` creates an implementation plan
 - `issue-implement` carries out the plan
 - `issue-verify` checks tests, linting, and review feedback
 - `issue-commit` prepares clean commits
-- `issue-pr` opens the pull request
+- `issue-pr` opens the pull request and hands off into review
 - `issue-finish` wraps up branch and workspace state
 
 The top-level `issue-flow` skill is the orchestrator. It reads the current session state and routes the agent to the next correct step.

@@ -69,13 +69,16 @@ TRANSITIONS[issue-create]="brainstorm none"
 TRANSITIONS[issue-pick]="brainstorm none"
 
 # issue-plan: from picked
-TRANSITIONS[issue-plan]="picked"
+TRANSITIONS[issue-plan]="researching"
 
-# issue-implement: from planned OR verifying (retry from verify failure)
-TRANSITIONS[issue-implement]="planned verifying"
+# issue-research: from picked
+TRANSITIONS[issue-research]="picked"
 
-# issue-verify: from implementing
-TRANSITIONS[issue-verify]="implementing"
+# issue-implement: from planned OR verifying (retry from verify failure) OR reviewing
+TRANSITIONS[issue-implement]="planned verifying reviewing"
+
+# issue-verify: from implementing or reviewing
+TRANSITIONS[issue-verify]="implementing reviewing"
 
 # issue-commit: from committing
 TRANSITIONS[issue-commit]="committing"

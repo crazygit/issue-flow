@@ -11,6 +11,7 @@
   state              # 当前阶段（纯文本，一行）
   mode               # 运行模式：auto | manual
   issue.json         # Issue 元数据（JSON）
+  research-notes.md  # 调研结果（可选，markdown）
   plan-path          # plan 文件绝对/相对路径（纯文本，一行）
   verify-report.md   # 验证报告（可选，markdown）
 ```
@@ -24,19 +25,22 @@
 合法值（按流转顺序）：
 
 ```
-none → brainstorm → picked → planned → implementing → verifying → committing → pring → finished
-                        ↑___________________________↓（verify 失败时回退到 implementing）
+none → brainstorm → picked → researching → planned → implementing → verifying → committing → pring → reviewing → finished
+                                      ↑___________________________↓（verify 失败时回退到 implementing）
+                                                                                   ↑___________↓（PR 后反馈循环）
 ```
 
 - `none`：尚未开始（通常不会出现在文件中）
 - `brainstorm`：正在进行需求头脑风暴（`issue-create` 不改变状态，完成后仍为 `brainstorm`）
 - `picked`：已创建 worktree/分支，等待生成计划
+- `researching`：已完成 Issue 接手，正在/已完成代码库调研，等待生成计划
 - `planned`：已生成计划，等待执行
 - `implementing`：正在/已执行实现计划
 - `verifying`：正在进行验证（test + lint + review + 验收标准）
 - `committing`：代码已验证通过，等待提交
 - `pring`：代码已提交，等待创建 PR
-- `finished`：流程已结束，可清理 `.issue-flow/`
+- `reviewing`：PR 已创建，等待或处理 review/CI 反馈
+- `finished`：流程已明确结束，可清理 `.issue-flow/`
 
 ### `mode`
 
@@ -78,7 +82,7 @@ docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md
 ## 子 skill 行为约定
 
 - **读取**：子 skill 可以读取 `.issue-flow/` 中的文件获取上下文
-- **写入**：子 skill 可以写入 `plan-path`、`verify-report.md` 等业务文件
+- **写入**：子 skill 可以写入 `research-notes.md`、`plan-path`、`verify-report.md` 等业务文件
 - 写入 `.issue-flow/` 状态文件时，优先使用 `Write`，不要依赖 `cat > file`、`echo ... > file` 这类 shell 重定向
 - **状态更新**：`.issue-flow/state` 由 `issue-flow` 编排器统一维护，子 skill 不应直接修改
 - **mode 适配**：子 skill 在执行门控操作前，应读取 `.issue-flow/mode`：

@@ -121,11 +121,36 @@ fi
 
 echo -n "  issue-flow: declares required superpowers runtime skills ... "
 if grep -q 'brainstorming' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'issue-research' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q 'writing-plans' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q 'using-git-worktrees' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q 'subagent-driven-development' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q 'executing-plans' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q 'finishing-a-development-branch' "$SKILLS_DIR/issue-flow/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  issue-verify: review loop reads PR comments and checks ... "
+if grep -F -q 'Bash(gh pr list --head *)' "$SKILLS_DIR/issue-verify/SKILL.md" \
+  && grep -F -q 'Bash(gh pr view *)' "$SKILLS_DIR/issue-verify/SKILL.md" \
+  && grep -F -q 'Bash(gh pr checks *)' "$SKILLS_DIR/issue-verify/SKILL.md" \
+  && grep -F -q 'gh pr view <number> --comments' "$SKILLS_DIR/issue-verify/SKILL.md" \
+  && grep -F -q 'gh pr checks <number>' "$SKILLS_DIR/issue-verify/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  issue-flow: finish remains explicit review-stage action ... "
+if grep -q '若参数为 `finish` / `--finish`' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '仅在当前 `state=reviewing` 时有效' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'issue-finish' "$SKILLS_DIR/issue-flow/SKILL.md"; then
   echo "ok"
   PASS=$((PASS + 1))
 else

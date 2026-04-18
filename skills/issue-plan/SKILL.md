@@ -21,7 +21,7 @@ allowed-tools:
 
 # Issue Plan
 
-基于 `.issue-flow/issue.json` 中的 Issue 内容，生成实现计划。
+基于 `.issue-flow/issue.json` 和 `.issue-flow/research-notes.md` 生成实现计划。
 
 ## 执行步骤
 
@@ -30,11 +30,18 @@ allowed-tools:
 1. 检查当前目录是否存在 `.issue-flow/issue.json`
 2. 若不存在，向父目录逐级查找（最多到 git 仓库根目录）
 3. 若仍未找到，停止并提示："未找到 .issue-flow/issue.json，请先通过 `/issue-flow #<编号>` 或 `issue-pick` 初始化上下文"
+4. 检查 `.issue-flow/research-notes.md` 是否存在；若不存在，停止并提示："未找到 research notes，请先通过 `/issue-flow` 执行 research 阶段"
 
 ### 2. 读取 Issue 上下文
 
 读取 `.issue-flow/issue.json`，提取：
 - Issue 编号、标题、URL、类型
+
+读取 `.issue-flow/research-notes.md`，提取：
+- 相关模块
+- 关键文件
+- 风险
+- 计划约束
 
 运行 `gh issue view <N> --comments`，提取：
 - 目标
@@ -50,7 +57,7 @@ allowed-tools:
 
 ### 4. 生成实现计划
 
-调用 `superpowers:writing-plans`，传入 Issue 内容和代码库上下文。
+调用 `superpowers:writing-plans`，传入 Issue 内容、research notes 和代码库上下文。
 
 `writing-plans` 会自动将计划保存到 `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`。
 
@@ -87,6 +94,7 @@ allowed-tools:
 ## 规则
 
 - 计划必须基于 Issue 的验收标准，不能偏离目标
+- 计划必须显式吸收 research 结论，不能忽略已发现的风险和文件边界
 - 若 Issue 信息不足，基于代码库和 Issue 描述合理补充，不猜测
 - 文件路径必须精确，不能含糊
 - `.issue-flow/plan-path` 使用相对路径或绝对路径均可，但必须指向实际存在的文件
