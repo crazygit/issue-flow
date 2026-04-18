@@ -1,8 +1,11 @@
 {
   "name": "issue-flow-marketplace",
-  "description": "Issue-flow plugin marketplace entry",
   "owner": {
     "name": "Crazygit"
+  },
+  "metadata": {
+    "description": "Marketplace for installing the Issue-Flow Claude Code plugin.",
+    "version": "1.0.0"
   },
   "plugins": [
     {

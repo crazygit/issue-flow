@@ -23,7 +23,7 @@ escape_for_json() {
 }
 
 issue_flow_escaped=$(escape_for_json "$issue_flow_content")
-session_context="<EXTREMELY_IMPORTANT>\nYou have issue-flow.\n\n**Below is the full content of your 'issue-flow' skill — an issue-driven development orchestrator. Requires superpowers plugin.**\n\n${issue_flow_escaped}\n\n<important-reminder>Before starting issue-flow, verify superpowers is installed. If not, tell the user to run: /plugin install superpowers@claude-plugins-official</important-reminder>\n</EXTREMELY_IMPORTANT>"
+session_context="<EXTREMELY_IMPORTANT>\nYou have issue-flow.\n\n**Below is the full content of your 'issue-flow' skill — an issue-driven development orchestrator. Requires superpowers as a runtime dependency.**\n\n${issue_flow_escaped}\n\n<important-reminder>Before starting issue-flow, verify the required superpowers skills are discoverable. Claude Code install command: /plugin install superpowers@claude-plugins-official . Codex install path: clone superpowers into ~/.codex/plugins/superpowers, expose it through ~/.agents/plugins/marketplace.json, then install it from the Codex plugin directory UI.</important-reminder>\n</EXTREMELY_IMPORTANT>"
 
 # Output context injection as JSON.
 # Cursor hooks expect additional_context (snake_case).

@@ -1,8 +1,8 @@
 ## Summary
 
-Brief description of changes.
+Describe the problem this pull request solves and the approach you took.
 
-## Type of Change
+## Changes
 
 - [ ] Bug fix
 - [ ] New feature
@@ -10,14 +10,21 @@ Brief description of changes.
 - [ ] Documentation
 - [ ] Refactor
 
-## Testing
+## Verification
 
-- [ ] `bash tests/state-machine/run-tests.sh` passes
-- [ ] `bash tests/skill-loading/run-tests.sh` passes
-- [ ] Manual testing performed
+List the exact commands you ran and any important manual checks.
+
+- [ ] `bash tests/state-machine/run-tests.sh`
+- [ ] `bash tests/skill-loading/run-tests.sh`
+- [ ] Manual verification completed when applicable
+
+## Notes For Reviewers
+
+- Call out state-machine changes, platform-specific behavior, or dependency implications here
+- Mention follow-up work if anything is intentionally left out of scope
 
 ## Checklist
 
-- [ ] CLAUDE.md guidelines followed
-- [ ] State machine transitions updated (if applicable)
-- [ ] Documentation updated (if applicable)
+- [ ] I followed the repository guidelines in `CONTRIBUTING.md`
+- [ ] I updated docs for behavior changes
+- [ ] I updated related tests when the workflow contract changed

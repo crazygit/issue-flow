@@ -1,0 +1,44 @@
+{
+  "name": "issue-flow",
+  "version": "1.0.0",
+  "description": "Issue-driven development orchestrator packaged as a reusable Codex plugin bundle.",
+  "author": {
+    "name": "Crazygit",
+    "email": "opensource@crazygit.dev",
+    "url": "https://github.com/crazygit"
+  },
+  "homepage": "https://github.com/crazygit/issue-flow",
+  "repository": "https://github.com/crazygit/issue-flow",
+  "license": "MIT",
+  "keywords": [
+    "issue-driven",
+    "workflow",
+    "state-machine",
+    "agentic",
+    "development"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Issue Flow",
+    "shortDescription": "Run issue-driven development from one Codex plugin entrypoint.",
+    "longDescription": "Issue Flow bundles workflow skills and hooks into a Codex-friendly plugin package. It drives brainstorming, issue creation, planning, implementation, verification, commit, PR, and finish steps from a single orchestrator skill.",
+    "developerName": "Crazygit",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Shell",
+      "Skills"
+    ],
+    "websiteURL": "https://github.com/crazygit/issue-flow",
+    "privacyPolicyURL": "https://github.com/crazygit/issue-flow/blob/main/README.md",
+    "termsOfServiceURL": "https://github.com/crazygit/issue-flow/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Use issue-flow to turn this requirement into an issue and plan.",
+      "Resume the current issue-flow session in this worktree.",
+      "Start issue-flow on GitHub issue #42."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

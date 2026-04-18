@@ -1,89 +1,146 @@
 # Issue-Flow
 
-Issue-driven development orchestrator. Manages the full development lifecycle through a state machine, from requirement brainstorming to PR creation.
+Issue-Flow is an issue-driven development orchestrator for coding agents. It turns a feature request or GitHub issue into a structured delivery workflow: clarify the problem, write a plan, implement changes, verify the result, and package the work for review.
 
-**Requires [superpowers](https://github.com/obra/superpowers) plugin.**
+Issue-Flow is built to work with [superpowers](https://github.com/obra/superpowers). Superpowers provides the core development workflows, and Issue-Flow adds a lightweight state machine around them so agent sessions can stay aligned with a single issue from start to finish.
 
-## Features
+## Why Issue-Flow
 
-- **State machine workflow**: Brainstorm → Pick → Plan → Implement → Verify → Commit → PR → Finish
-- **Manual & Auto modes**: Manual mode pauses for approval at each gate; auto mode runs continuously
-- **Hook-based enforcement**: SessionStart hook injects skill awareness; PreToolUse hook validates state transitions
-- **Code review agent**: Built-in agent for structured code review against acceptance criteria
-- **Multi-platform**: Supports Claude Code and Codex
+- Keep agent work anchored to one issue instead of drifting across unrelated tasks
+- Make progress explicit with a state machine instead of relying on hidden session context
+- Support both guided approval checkpoints and uninterrupted auto-mode execution
+- Reuse mature workflows from superpowers instead of reimplementing planning and execution logic
+- Stay lightweight: no third-party runtime dependencies, no separate service to run
+
+## How It Works
+
+Issue-Flow tracks a development session through a small workflow state machine:
+
+```text
+brainstorm -> picked -> planned -> implementing -> verifying -> committing -> pring -> finished
+```
+
+Each phase maps to a focused skill:
+
+- `issue-brainstorm` turns a rough request into a design direction
+- `issue-pick` attaches the session to a specific issue and branch context
+- `issue-plan` creates an implementation plan
+- `issue-implement` carries out the plan
+- `issue-verify` checks tests, linting, and review feedback
+- `issue-commit` prepares clean commits
+- `issue-pr` opens the pull request
+- `issue-finish` wraps up branch and workspace state
+
+The top-level `issue-flow` skill is the orchestrator. It reads the current session state and routes the agent to the next correct step.
 
 ## Quick Start
 
+Issue-Flow currently supports Claude Code and Codex.
+
+### Claude Code
+
 ```bash
-# Claude Code
 /plugin install superpowers@claude-plugins-official
-git clone https://github.com/crazygit/issue-flow ~/.claude/plugins/issue-flow
-
-# Codex
-git clone https://github.com/obra/superpowers ~/.codex/superpowers
-ln -s ~/.codex/superpowers/skills ~/.agents/skills/superpowers
-git clone https://github.com/crazygit/issue-flow ~/.codex/issue-flow
-ln -s ~/.codex/issue-flow/skills ~/.agents/skills/issue-flow
+/plugin marketplace add crazygit/issue-flow
+/plugin install issue-flow@issue-flow-marketplace
 ```
 
-See [INSTALL.md](INSTALL.md) for detailed instructions.
+### Codex
 
-## Usage
+Preferred path: use the Codex plugin directory with a marketplace-backed local plugin install.
+
+Install `superpowers` as a local Codex plugin first:
 
 ```bash
-/issue-flow Add email login support       # Manual mode from requirement
-/issue-flow --auto Add email login support  # Auto mode
-/issue-flow #42                            # From existing issue
-/issue-flow                                # Resume session
+git clone https://github.com/obra/superpowers ~/.codex/plugins/superpowers
 ```
 
-## Architecture
+Then add or update `~/.agents/plugins/marketplace.json` with a local `superpowers` entry:
 
-```
-┌─────────────────────────────────────────────────┐
-│                 issue-flow (orchestrator)        │
-│     reads .issue-flow/state → dispatches skill  │
-└──────────────────────┬──────────────────────────┘
-                       │
-            ┌──────────▼──────────┐
-            │   Core Skills       │
-            │   (issue-*)         │──uses──▶ superpowers
-            │                     │
-            └─────────────────────┘
-
-┌─────────────────────┐     ┌──────────────────┐
-│ Hooks               │     │ Agents           │
-│ session-start       │     │ code-reviewer    │
-│ state-transition    │     └──────────────────┘
-└─────────────────────┘
-```
-
-## State Machine
-
-```
-none → brainstorm → picked → planned → implementing → verifying → committing → pring → finished
-                                       ↑_________________________↓
-                                       (verify failure → retry)
+```json
+{
+  "name": "local-plugins",
+  "interface": {
+    "displayName": "Local Plugins"
+  },
+  "plugins": [
+    {
+      "name": "superpowers",
+      "source": {
+        "source": "local",
+        "path": "./.codex/plugins/superpowers"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
 ```
 
-## Skills
+Restart Codex, open the plugin directory, choose `Local Plugins`, and install `superpowers`.
 
-| Skill | Purpose | Superpowers Dependency |
-|-------|---------|----------------------|
-| `issue-flow` | Main orchestrator | `brainstorming`, `writing-plans`, `subagent-driven-development`, `finishing-a-development-branch` |
-| `issue-brainstorm` | Requirements → design spec | `brainstorming` |
-| `issue-create` | Design spec → GitHub Issue | — |
-| `issue-pick` | Issue → worktree + branch | `using-git-worktrees` |
-| `issue-plan` | Issue → implementation plan | `writing-plans` |
-| `issue-implement` | Plan → code changes | `subagent-driven-development`, `executing-plans` |
-| `issue-verify` | Test + lint + code review | — |
-| `issue-commit` | Smart git commits | — |
-| `issue-pr` | Pull Request creation | — |
-| `issue-finish` | Cleanup | `finishing-a-development-branch` |
+This repository already includes a repo-scoped Codex marketplace at [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json). Open the repository in Codex, restart if needed, choose `Issue-Flow Local Plugins` in the plugin directory, and install `issue-flow`.
+
+Then start a workflow:
+
+```bash
+/issue-flow Add email login support
+/issue-flow --auto Add email login support
+/issue-flow #42
+/issue-flow
+```
+
+For platform-specific details, see [INSTALL.md](INSTALL.md).
+
+## Who This Is For
+
+Issue-Flow is a good fit if you want:
+
+- A reproducible agent workflow tied to issues and pull requests
+- Stronger control over long-running implementation sessions
+- A small orchestration layer on top of superpowers
+- A plugin that can run in both Claude Code and Codex-oriented setups
+
+It is probably not a fit if you want a standalone coding methodology without the `superpowers` dependency.
+
+## Project Structure
+
+```text
+issue-flow/
+├── skills/                 # Workflow skills and references
+├── hooks/                  # Session start and state-transition enforcement
+├── agents/                 # Supporting review agents
+├── docs/                   # Architecture, installation, testing, packaging
+├── tests/                  # State-machine and skill-loading checks
+├── .agents/plugins/        # Repo-scoped Codex marketplace catalog
+├── .claude-plugin/         # Claude Code plugin metadata
+└── .codex-plugin/          # Codex plugin metadata
+```
+
+## Documentation
+
+- [INSTALL.md](INSTALL.md) - installation and update instructions
+- [docs/README.md](docs/README.md) - documentation index
+- [docs/architecture.md](docs/architecture.md) - architecture and design boundaries
+- [docs/distribution.md](docs/distribution.md) - packaging model and runtime dependency notes
+- [docs/testing.md](docs/testing.md) - test suites and verification commands
+- [CONTRIBUTING.md](CONTRIBUTING.md) - contributor workflow and repository rules
+
+## Current Status
+
+Issue-Flow is usable today, but it is still opinionated and intentionally narrow:
+
+- `superpowers` is a required runtime dependency
+- Claude Code installs through the standard marketplace flow, even though this repository currently publishes only one plugin
+- Claude Code has the strongest native integration because it supports hooks and skill chaining
+- Codex uses the plugin-bundle model too, but still requires a separate `superpowers` plugin install
 
 ## Contributing
 
-See [CLAUDE.md](CLAUDE.md) for contributor guidelines.
+Contributions are welcome, especially around documentation, workflow polish, and platform compatibility. Before opening a pull request, read [CONTRIBUTING.md](CONTRIBUTING.md) for repository-specific rules around state transitions, skill definitions, and tests.
 
 ## License
 
