@@ -38,14 +38,14 @@ mkdir -p "$HOME"
 
 if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
   marketplace_file="$HOME/.agents/plugins/marketplace.json"
-  issue_flow_plugin="$HOME/.codex/local-plugins/issue-flow/.codex-plugin/plugin.json"
+  issue_flow_plugin="$HOME/.codex/plugins/issue-flow/.codex-plugin/plugin.json"
   if [ -f "$marketplace_file" ] \
     && [ -f "$issue_flow_plugin" ] \
     && grep -q '"name": "codex-local-plugins"' "$marketplace_file" \
     && grep -q '"name": "issue-flow"' "$marketplace_file" \
-    && grep -q '"path": "./.codex/local-plugins/issue-flow"' "$marketplace_file" \
+    && grep -q '"path": "./.codex/plugins/issue-flow"' "$marketplace_file" \
     && ! grep -q '"name": "superpowers"' "$marketplace_file" \
-    && [ ! -e "$HOME/.codex/local-plugins/superpowers" ]; then
+    && [ ! -e "$HOME/.codex/plugins/superpowers" ]; then
     record_pass
   else
     record_fail

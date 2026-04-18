@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 INSTALL_MODE="copy"
-LOCAL_PLUGINS_DIR="${HOME}/.codex/local-plugins"
-ISSUE_FLOW_DIR="${LOCAL_PLUGINS_DIR}/issue-flow"
+PLUGINS_DIR="${HOME}/.codex/plugins"
+ISSUE_FLOW_DIR="${PLUGINS_DIR}/issue-flow"
 MARKETPLACE_DIR="${HOME}/.agents/plugins"
 MARKETPLACE_FILE="${MARKETPLACE_DIR}/marketplace.json"
 
@@ -17,8 +17,8 @@ Usage: bash scripts/install-codex.sh [--copy|--dev-link] [--help]
 Prepare a personal Codex marketplace entry for issue-flow.
 
 Options:
-  --copy      Copy the current repository into ~/.codex/local-plugins/issue-flow (default)
-  --dev-link  Symlink the current repository into ~/.codex/local-plugins/issue-flow
+  --copy      Copy the current repository into ~/.codex/plugins/issue-flow (default)
+  --dev-link  Symlink the current repository into ~/.codex/plugins/issue-flow
   --help      Show this help text
 EOF
 }
@@ -54,7 +54,7 @@ require_command() {
 require_command python3
 
 prepare_directories() {
-  mkdir -p "$LOCAL_PLUGINS_DIR" "$MARKETPLACE_DIR"
+  mkdir -p "$PLUGINS_DIR" "$MARKETPLACE_DIR"
 }
 
 stage_issue_flow() {
@@ -108,7 +108,7 @@ managed = {
         "name": "issue-flow",
         "source": {
             "source": "local",
-            "path": "./.codex/local-plugins/issue-flow",
+            "path": "./.codex/plugins/issue-flow",
         },
         "policy": {
             "installation": "AVAILABLE",

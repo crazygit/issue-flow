@@ -176,7 +176,7 @@ if grep -q '/plugin install superpowers@claude-plugins-official' "$SKILLS_DIR/is
   && grep -q '/plugin install issue-flow@issue-flow-marketplace' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q 'OpenAI Curated' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q 'bash scripts/install-codex.sh' "$SKILLS_DIR/issue-flow/SKILL.md" \
-  && grep -q '~/.codex/local-plugins/issue-flow' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '~/.codex/plugins/issue-flow' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q '\.agents/plugins/marketplace.json' "$SKILLS_DIR/issue-flow/SKILL.md"; then
   echo "ok"
   PASS=$((PASS + 1))
