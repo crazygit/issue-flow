@@ -20,10 +20,18 @@ bash tests/skill-loading/run-tests.sh
 
 These tests validate `SKILL.md` files, including required frontmatter and structural expectations.
 
+### Codex install tests
+
+```bash
+bash tests/codex-install/run-tests.sh
+```
+
+These tests validate that the Codex installer script exists and can stage the expected local plugin and marketplace layout in a temporary home directory.
+
 ## Run Everything
 
 ```bash
-bash tests/state-machine/run-tests.sh && bash tests/skill-loading/run-tests.sh
+bash tests/state-machine/run-tests.sh && bash tests/skill-loading/run-tests.sh && bash tests/codex-install/run-tests.sh
 ```
 
 ## When To Run Tests

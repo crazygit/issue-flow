@@ -14,6 +14,7 @@ Today, users still need:
 
 - the `superpowers` runtime dependency
 - a host environment that can install or discover plugins
+- a small installer script to stage the local `issue-flow` Codex marketplace layout
 
 ## Why Installation Is Still Two-Part
 
@@ -29,6 +30,7 @@ Issue-Flow is intentionally an orchestrator, not a bundled workflow platform. Ke
 - Codex can identify the repository root as an installable plugin package through `.codex-plugin/plugin.json`
 - Codex can expose the plugin in a repo-scoped marketplace through `.agents/plugins/marketplace.json`
 - Installation instructions can point to stable manifest and marketplace locations
+- `scripts/install-codex.sh` can stage `issue-flow` and update the user's personal marketplace in one step
 
 ## What It Does Not Solve Yet
 
@@ -37,4 +39,4 @@ Issue-Flow is intentionally an orchestrator, not a bundled workflow platform. Ke
 
 ## Recommendation
 
-Treat Issue-Flow as a focused orchestration plugin with an explicit runtime dependency. For Codex, prefer the documented plugin-bundle flow: keep `.codex-plugin/plugin.json` at the plugin root, expose the repo through `.agents/plugins/marketplace.json`, and install from the plugin directory instead of wiring `skills/` into `~/.agents/skills/` manually.
+Treat Issue-Flow as a focused orchestration plugin with an explicit runtime dependency. For Codex, prefer the documented plugin-bundle flow: install `Superpowers` from `OpenAI Curated`, use `scripts/install-codex.sh` to stage `~/.codex/local-plugins/issue-flow` plus `~/.agents/plugins/marketplace.json`, and install from the plugin directory instead of wiring `skills/` into `~/.agents/skills/` manually.

@@ -136,8 +136,9 @@ echo -n "  issue-flow: install guidance covers Claude and Codex ... "
 if grep -q '/plugin install superpowers@claude-plugins-official' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q '/plugin marketplace add crazygit/issue-flow' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q '/plugin install issue-flow@issue-flow-marketplace' "$SKILLS_DIR/issue-flow/SKILL.md" \
-  && grep -q '通过 Codex 插件目录安装 `superpowers` 插件' "$SKILLS_DIR/issue-flow/SKILL.md" \
-  && grep -q '~/.codex/plugins/superpowers' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'OpenAI Curated' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q 'bash scripts/install-codex.sh' "$SKILLS_DIR/issue-flow/SKILL.md" \
+  && grep -q '~/.codex/local-plugins/issue-flow' "$SKILLS_DIR/issue-flow/SKILL.md" \
   && grep -q '\.agents/plugins/marketplace.json' "$SKILLS_DIR/issue-flow/SKILL.md"; then
   echo "ok"
   PASS=$((PASS + 1))
@@ -149,6 +150,7 @@ fi
 echo -n "  codex install docs prefer plugin marketplace flow ... "
 if grep -q '\.codex-plugin/plugin.json' "$REPO_ROOT/.codex/INSTALL.md" \
   && grep -q '\.agents/plugins/marketplace.json' "$REPO_ROOT/.codex/INSTALL.md" \
+  && grep -q 'bash scripts/install-codex.sh' "$REPO_ROOT/.codex/INSTALL.md" \
   && ! grep -q '~/.agents/skills/' "$REPO_ROOT/.codex/INSTALL.md" \
   && ! grep -q 'ln -s ' "$REPO_ROOT/.codex/INSTALL.md"; then
   echo "ok"
@@ -160,8 +162,9 @@ fi
 
 echo -n "  session-start reminder uses Codex plugin install path ... "
 if grep -q '/plugin install superpowers@claude-plugins-official' "$REPO_ROOT/hooks/session-start" \
-  && grep -q '~/.codex/plugins/superpowers' "$REPO_ROOT/hooks/session-start" \
-  && grep -q '\.agents/plugins/marketplace.json' "$REPO_ROOT/hooks/session-start" \
+  && grep -q 'OpenAI Curated' "$REPO_ROOT/hooks/session-start" \
+  && grep -q 'bash scripts/install-codex.sh' "$REPO_ROOT/hooks/session-start" \
+  && grep -q 'Local Plugins' "$REPO_ROOT/hooks/session-start" \
   && ! grep -q '~/.agents/skills/' "$REPO_ROOT/hooks/session-start" \
   && ! grep -q 'ln -s ' "$REPO_ROOT/hooks/session-start"; then
   echo "ok"

@@ -90,16 +90,15 @@ none → brainstorm → picked → planned → implementing → verifying → co
 2. `git remote -v` — 失败则停止，提示当前目录不是 git 仓库或没有 GitHub remote
 3. superpowers 可用性检查 — 必须确认以下运行时 skill 可发现：`brainstorming`、`writing-plans`、`using-git-worktrees`、`subagent-driven-development`、`executing-plans`、`finishing-a-development-branch`
    - Claude Code：优先检查 `~/.claude/plugins/superpowers/skills/` 下对应 `SKILL.md` 是否存在且可读
-   - Codex：优先检查已安装的 `superpowers` 插件是否可用；若需要本地源码排查，再检查 `~/.codex/plugins/superpowers/skills/` 下对应 `SKILL.md` 是否存在且可读
+   - Codex：优先检查已安装的 `superpowers` 插件是否可用；优先假设其来自 `OpenAI Curated`
    - 若缺失任一必需 skill，则**立即停止**，不要创建或修改 `.issue-flow/`
    - Claude Code 安装提示：`/plugin install superpowers@claude-plugins-official`
    - Claude Code 安装 `issue-flow`：`/plugin marketplace add crazygit/issue-flow`，然后 `/plugin install issue-flow@issue-flow-marketplace`
    - Codex 安装提示：
-     - 优先：通过 Codex 插件目录安装 `superpowers` 插件
-     - `git clone https://github.com/obra/superpowers ~/.codex/plugins/superpowers`
-     - 在 `~/.agents/plugins/marketplace.json` 中添加本地 `superpowers` 插件条目
-     - 重启 Codex 后在插件目录安装 `superpowers`
-     - 当前仓库提供 repo 级 `.agents/plugins/marketplace.json`，可直接在 Codex 插件目录安装 `issue-flow`
+     - 先在 Codex 插件目录的 `OpenAI Curated` 中安装或启用 `Superpowers`
+     - 在当前仓库根目录执行：`bash scripts/install-codex.sh`
+     - 脚本会准备 `~/.codex/local-plugins/issue-flow` 和 `~/.agents/plugins/marketplace.json`
+     - 重启 Codex 后在 `Local Plugins` 中安装或启用 `issue-flow`
    - 错误提示必须说明：缺失的是 superpowers 运行时依赖，而不是 GitHub、仓库、worktree 或 Issue 配置错误
 
 ### 模式 A：需求到 Issue 再到实现
