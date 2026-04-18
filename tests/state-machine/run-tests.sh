@@ -49,7 +49,6 @@ run_test "picked → issue-research" "picked" "issue-research" 0
 run_test "researching → issue-plan" "researching" "issue-plan" 0
 run_test "planned → issue-implement" "planned" "issue-implement" 0
 run_test "implementing → issue-verify" "implementing" "issue-verify" 0
-run_test "verifying → issue-implement (retry)" "verifying" "issue-implement" 0
 run_test "committing → issue-commit" "committing" "issue-commit" 0
 run_test "pring → issue-pr" "pring" "issue-pr" 0
 run_test "reviewing → issue-verify" "reviewing" "issue-verify" 0
@@ -65,6 +64,7 @@ run_test "picked → issue-implement" "picked" "issue-implement" 2
 run_test "picked → issue-brainstorm" "picked" "issue-brainstorm" 2
 run_test "implementing → issue-commit" "implementing" "issue-commit" 2
 run_test "planned → issue-verify" "planned" "issue-verify" 2
+run_test "verifying → issue-implement" "verifying" "issue-implement" 2
 run_test "verifying → issue-commit" "verifying" "issue-commit" 2
 run_test "committing → issue-verify" "committing" "issue-verify" 2
 run_test "pring → issue-finish" "pring" "issue-finish" 2

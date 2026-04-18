@@ -17,7 +17,7 @@ Issue-Flow is built to work with [superpowers](https://github.com/obra/superpowe
 Issue-Flow tracks a development session through a small workflow state machine:
 
 ```text
-brainstorm -> picked -> researching -> planned -> implementing -> verifying -> committing -> pring -> reviewing -> finished
+brainstorm -> picked -> researching -> planned -> implementing -> committing -> pring -> reviewing -> finished
 ```
 
 Each phase maps to a focused skill:

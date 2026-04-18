@@ -74,8 +74,8 @@ TRANSITIONS[issue-plan]="researching"
 # issue-research: from picked
 TRANSITIONS[issue-research]="picked"
 
-# issue-implement: from planned OR verifying (retry from verify failure) OR reviewing
-TRANSITIONS[issue-implement]="planned verifying reviewing"
+# issue-implement: from planned or reviewing
+TRANSITIONS[issue-implement]="planned reviewing"
 
 # issue-verify: from implementing or reviewing
 TRANSITIONS[issue-verify]="implementing reviewing"

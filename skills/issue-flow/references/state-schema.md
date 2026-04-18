@@ -25,9 +25,9 @@
 合法值（按流转顺序）：
 
 ```
-none → brainstorm → picked → researching → planned → implementing → verifying → committing → pring → reviewing → finished
-                                      ↑___________________________↓（verify 失败时回退到 implementing）
-                                                                                   ↑___________↓（PR 后反馈循环）
+none → brainstorm → picked → researching → planned → implementing → committing → pring → reviewing → finished
+                                  ↑___________________________↓（issue-verify 失败时回退到 implementing）
+                                                                               ↑___________↓（PR 后反馈循环）
 ```
 
 - `none`：尚未开始（通常不会出现在文件中）
@@ -36,11 +36,12 @@ none → brainstorm → picked → researching → planned → implementing → 
 - `researching`：已完成 Issue 接手，正在/已完成代码库调研，等待生成计划
 - `planned`：已生成计划，等待执行
 - `implementing`：正在/已执行实现计划
-- `verifying`：正在进行验证（test + lint + review + 验收标准）
 - `committing`：代码已验证通过，等待提交
 - `pring`：代码已提交，等待创建 PR
 - `reviewing`：PR 已创建，等待或处理 review/CI 反馈
 - `finished`：流程已明确结束，可清理 `.issue-flow/`
+
+> `issue-verify` 是 workflow 动作，不单独持久化为 `state` 值。
 
 ### `mode`
 

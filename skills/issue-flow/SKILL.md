@@ -80,8 +80,8 @@ allowed-tools:
 状态流转：
 
 ```
-none → brainstorm → picked → researching → planned → implementing → verifying → committing → pring → reviewing → finished
-                                                          ↑______________↓（verify 失败时回退）
+none → brainstorm → picked → researching → planned → implementing → committing → pring → reviewing → finished
+                                              ↑______________↓（verify 失败时回退）
                                                                                              ↑_____↓（PR 后反馈循环）
 ```
 
