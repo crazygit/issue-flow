@@ -33,44 +33,29 @@ Restart Claude Code after installation.
 
 Issue-Flow is packaged as a local Codex plugin bundle rooted at this repository. Codex discovers it through a marketplace file instead of direct `skills/` symlinks.
 
-### 1. Install `superpowers`
+### 1. Run the installer
+
+Before running the installer, install or enable `Superpowers` from the Codex plugin directory under `OpenAI Curated`.
 
 ```bash
-git clone https://github.com/obra/superpowers ~/.codex/plugins/superpowers
+bash scripts/install-codex.sh
 ```
 
-Add or update `~/.agents/plugins/marketplace.json` so it includes:
+The script will:
 
-```json
-{
-  "name": "local-plugins",
-  "interface": {
-    "displayName": "Local Plugins"
-  },
-  "plugins": [
-    {
-      "name": "superpowers",
-      "source": {
-        "source": "local",
-        "path": "./.codex/plugins/superpowers"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    }
-  ]
-}
+- copy this repository into `~/.codex/local-plugins/issue-flow`
+- create or update `~/.agents/plugins/marketplace.json`
+- register `issue-flow` under the `Local Plugins` marketplace
+
+If you are developing Issue-Flow locally and want Codex to use the live checkout instead of a copied snapshot, run:
+
+```bash
+bash scripts/install-codex.sh --dev-link
 ```
 
-Restart Codex, open the plugin directory, choose `Local Plugins`, and install `superpowers`.
+### 2. Enable the plugins in Codex
 
-### 2. Install `issue-flow`
-
-This repository already contains a repo-scoped marketplace at [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json). It exposes `issue-flow` as a local plugin whose `source.path` points at the repository root.
-
-Open this repository in Codex, restart if needed, choose `Issue-Flow Local Plugins` in the plugin directory, and install `issue-flow`.
+Restart Codex, confirm `Superpowers` is enabled under `OpenAI Curated`, then choose `Local Plugins` and install or enable `issue-flow`.
 
 ### 3. Confirm both plugins are enabled
 
@@ -100,7 +85,7 @@ issue-flow
 For Codex installations:
 
 ```bash
-cd /path/to/issue-flow && git pull
+bash scripts/install-codex.sh
 ```
 
 ## Uninstalling
@@ -115,6 +100,9 @@ cd /path/to/issue-flow && git pull
 ### Codex
 
 ```bash
-# Disable or uninstall `issue-flow` from the Codex plugin directory UI,
-# then remove its entry from ./.agents/plugins/marketplace.json if you no longer want this repo to expose it.
+# Disable or uninstall `issue-flow` and `superpowers` from the Codex plugin directory UI.
+# If you want to remove the local copies too, delete:
+#   ~/.codex/local-plugins/issue-flow
+# and remove its entry from ~/.agents/plugins/marketplace.json.
+# `Superpowers` is managed from the `OpenAI Curated` marketplace.
 ```

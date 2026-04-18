@@ -47,43 +47,26 @@ Issue-Flow currently supports Claude Code and Codex.
 
 ### Codex
 
-Preferred path: use the Codex plugin directory with a marketplace-backed local plugin install.
+Preferred path: install `Superpowers` from `OpenAI Curated`, then use the installer script to prepare a personal Codex marketplace entry for `issue-flow`.
 
-Install `superpowers` as a local Codex plugin first:
+First, enable `Superpowers` from the Codex plugin directory under `OpenAI Curated`.
 
 ```bash
-git clone https://github.com/obra/superpowers ~/.codex/plugins/superpowers
+bash scripts/install-codex.sh
 ```
 
-Then add or update `~/.agents/plugins/marketplace.json` with a local `superpowers` entry:
+The script will:
 
-```json
-{
-  "name": "local-plugins",
-  "interface": {
-    "displayName": "Local Plugins"
-  },
-  "plugins": [
-    {
-      "name": "superpowers",
-      "source": {
-        "source": "local",
-        "path": "./.codex/plugins/superpowers"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    }
-  ]
-}
+- copy this repository into `~/.codex/local-plugins/issue-flow`
+- create or update `~/.agents/plugins/marketplace.json` with the local `issue-flow` entry
+
+For local development against the current checkout, use:
+
+```bash
+bash scripts/install-codex.sh --dev-link
 ```
 
-Restart Codex, open the plugin directory, choose `Local Plugins`, and install `superpowers`.
-
-This repository already includes a repo-scoped Codex marketplace at [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json). Open the repository in Codex, restart if needed, choose `Issue-Flow Local Plugins` in the plugin directory, and install `issue-flow`.
-
+Then restart Codex if needed, open the plugin directory, choose `Local Plugins`, and install or enable `issue-flow`.
 Then start a workflow:
 
 ```bash
@@ -136,7 +119,7 @@ Issue-Flow is usable today, but it is still opinionated and intentionally narrow
 - `superpowers` is a required runtime dependency
 - Claude Code installs through the standard marketplace flow, even though this repository currently publishes only one plugin
 - Claude Code has the strongest native integration because it supports hooks and skill chaining
-- Codex uses the plugin-bundle model too, but still requires a separate `superpowers` plugin install
+- Codex uses the plugin-bundle model and depends on `superpowers`, but `superpowers` is expected to come from `OpenAI Curated` while this repository's script only stages `issue-flow`
 
 ## Contributing
 
