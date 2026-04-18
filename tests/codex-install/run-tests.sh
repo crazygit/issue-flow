@@ -33,28 +33,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-mkdir -p "$tmpdir/bin"
-cat > "$tmpdir/bin/git" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-if [ "$1" = "clone" ]; then
-  target="${@: -1}"
-  mkdir -p "$target/.codex-plugin" "$target/skills"
-  printf '{"name":"superpowers"}\n' > "$target/.codex-plugin/plugin.json"
-  exit 0
-fi
-if [ "$1" = "-C" ] && [ "$3" = "pull" ]; then
-  exit 0
-fi
-echo "unexpected git invocation: $*" >&2
-exit 1
-EOF
-chmod +x "$tmpdir/bin/git"
-
 HOME="$tmpdir/home"
 mkdir -p "$HOME"
 
-if HOME="$HOME" PATH="$tmpdir/bin:$PATH" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
+if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
   marketplace_file="$HOME/.agents/plugins/marketplace.json"
   issue_flow_plugin="$HOME/.codex/local-plugins/issue-flow/.codex-plugin/plugin.json"
   if [ -f "$marketplace_file" ] \

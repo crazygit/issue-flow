@@ -60,6 +60,7 @@ Run the repository test suite before submitting a pull request:
 ```bash
 bash tests/state-machine/run-tests.sh
 bash tests/skill-loading/run-tests.sh
+bash tests/codex-install/run-tests.sh
 ```
 
 See [docs/testing.md](docs/testing.md) for what each suite covers.
