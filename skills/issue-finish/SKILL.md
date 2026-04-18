@@ -18,6 +18,7 @@ allowed-tools:
 # Issue Finish
 
 完成 Issue 开发流程的收尾工作：worktree 清理、分支管理、状态目录删除。
+该 skill 只应在用户明确决定结束 review 闭环后执行。
 
 ## 执行步骤
 
@@ -42,6 +43,7 @@ allowed-tools:
 - 选项 4：Discard（丢弃分支和 worktree）
 
 PR 已在 `issue-pr` 阶段处理，此处不再重复创建 PR。
+若仍有 review comments、CI 失败或待继续迭代的事项，不应进入本阶段。
 
 #### Auto 模式
 
@@ -81,6 +83,7 @@ rm -r .issue-flow
 - 不自动 merge PR
 - 不自动删除已推送到远端的 branch（默认保留）
 - `.issue-flow/` 在 `finished` 后必须清理
+- 收尾前应默认假设 review 闭环已经由用户确认结束
 - 删除时仅清理当前 worktree 根目录下的 `.issue-flow/`，不要泛化到其他路径
 - worktree 移除前确认没有未保存的更改
 - 如有未提交且未 push 的重要更改，先提醒用户

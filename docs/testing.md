@@ -39,6 +39,7 @@ bash tests/state-machine/run-tests.sh && bash tests/skill-loading/run-tests.sh &
 - Run both suites before opening a pull request
 - Run the state-machine suite after changing workflow phases, transition rules, or guard logic
 - Run the skill-loading suite after editing any `SKILL.md` file or metadata
+- Run both suites when adding a new workflow skill such as a new `issue-*` phase
 
 ## If You Change Behavior
 
