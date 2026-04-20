@@ -22,9 +22,15 @@ allowed-tools:
 
 ### 1. 检测运行模式
 
-检查 `.issue-flow/mode`：
-- 如果存在且内容为 `auto` → **auto 模式**
-- 否则 → **manual 模式**（默认）
+按以下优先级依次检查：
+
+1. **检查 `$ARGUMENTS`**：如果包含 `--auto` → **auto 模式**
+2. **检查 `.issue-flow/mode`**：如果存在且内容为 `auto` → **auto 模式**
+3. **默认** → **manual 模式**
+
+> 模式检测完成后，从 `$ARGUMENTS` 中移除 `--auto` 标记，剩余部分作为需求描述供后续步骤使用。
+> 当由 `issue-flow` 编排器调用时，模式通过 `$ARGUMENTS` 中的 `--auto` 标志传递（此时 `.issue-flow/` 尚未创建）。
+> 当独立调用或处于持久化状态机阶段时，模式从 `.issue-flow/mode` 文件读取。
 
 ### 2. 需求澄清
 

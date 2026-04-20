@@ -18,6 +18,7 @@ Initial release.
 - `issue-brainstorm` — Requirements → design spec
 - `issue-create` — Design spec → GitHub Issue
 - `issue-pick` — Issue → worktree + branch
+- `issue-research` — Codebase research before planning
 - `issue-plan` — Issue → implementation plan
 - `issue-implement` — Plan → code changes
 - `issue-verify` — Test + lint + review

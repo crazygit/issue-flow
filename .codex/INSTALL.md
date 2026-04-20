@@ -24,9 +24,9 @@ bash scripts/install-codex.sh
 
 This prepares a personal Codex marketplace by:
 
-- copying this repository to `~/.codex/local-plugins/issue-flow`
+- copying this repository to `~/.codex/plugins/issue-flow`
 - creating or updating `~/.agents/plugins/marketplace.json`
-- registering the local `issue-flow` entry under `Local Plugins`
+- registering the `issue-flow` entry under `Local Plugins`
 
 If you want Codex to use your current working tree directly while developing the plugin, use:
 
@@ -72,6 +72,6 @@ cd /path/to/issue-flow && git pull
 
 ```bash
 # Disable or uninstall `issue-flow` from the Codex plugin directory UI.
-# Then remove ~/.codex/local-plugins/issue-flow plus its entry from ~/.agents/plugins/marketplace.json if needed.
+# Then remove ~/.codex/plugins/issue-flow plus its entry from ~/.agents/plugins/marketplace.json if needed.
 # `Superpowers` is managed from `OpenAI Curated`.
 ```

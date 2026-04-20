@@ -16,13 +16,20 @@ Issue-Flow is built to work with [superpowers](https://github.com/obra/superpowe
 
 Issue-Flow tracks a development session through a small workflow state machine:
 
-```text
-brainstorm -> picked -> researching -> planned -> implementing -> committing -> pring -> reviewing -> finished
-```
+The workflow has two parts: a pre-phase that produces a GitHub Issue number, and a persistent state machine that tracks delivery from that point on.
 
-Each phase maps to a focused skill:
+**Pre-phase** (session-scoped, not persistable):
 
 - `issue-brainstorm` turns a rough request into a design direction
+- `issue-create` turns the design spec into a GitHub Issue number
+
+**Persistent state machine** (`.issue-flow/` created by `issue-pick`):
+
+```text
+picked -> researching -> planned -> implementing -> committing -> pring -> reviewing -> finished
+```
+
+Each persistent state maps to a focused skill:
 - `issue-pick` attaches the session to a specific issue and branch context
 - `issue-research` captures codebase findings before planning
 - `issue-plan` creates an implementation plan
