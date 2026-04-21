@@ -217,9 +217,9 @@ if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
   marketplace_file="$HOME/.agents/plugins/marketplace.json"
   issue_flow_count=$(grep -c '"name": "issue-flow"' "$marketplace_file" || true)
   if [ -f "$marketplace_file" ] \
-    && grep -q '"name": "other-plugin"' "$marketplace_file" \
-    && grep -q '"path": "./.codex/plugins/issue-flow"' "$marketplace_file" \
-    && ! grep -q '"path": "./.codex/local-plugins/issue-flow"' "$marketplace_file" \
+    && grep -Eq '"name"[[:space:]]*:[[:space:]]*"other-plugin"' "$marketplace_file" \
+    && grep -Eq '"path"[[:space:]]*:[[:space:]]*"\./\.codex/plugins/issue-flow"' "$marketplace_file" \
+    && ! grep -Eq '"path"[[:space:]]*:[[:space:]]*"\./\.codex/local-plugins/issue-flow"' "$marketplace_file" \
     && [ "$issue_flow_count" -eq 1 ]; then
     record_pass
   else
@@ -261,6 +261,42 @@ if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
     && grep -q '"displayName": "My Local Market"' "$marketplace_file" \
     && grep -q '^\[plugins\."issue-flow@my-local-market"\]$' "$config_file" \
     && ! grep -q '^\[plugins\."issue-flow@codex-personal-plugins"\]$' "$config_file"; then
+    record_pass
+  else
+    record_fail
+  fi
+else
+  record_fail
+fi
+
+echo -n "  install script does not remove other plugins whose metadata mentions issue-flow ... "
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+HOME="$tmpdir/home"
+mkdir -p "$HOME/.agents/plugins"
+cat >"$HOME/.agents/plugins/marketplace.json" <<'EOF'
+{
+  "plugins": [
+    {
+      "name": "helper-plugin",
+      "metadata": {
+        "name": "issue-flow"
+      },
+      "source": {
+        "source": "local",
+        "path": "./.codex/plugins/helper-plugin"
+      }
+    }
+  ]
+}
+EOF
+
+if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
+  marketplace_file="$HOME/.agents/plugins/marketplace.json"
+  if [ -f "$marketplace_file" ] \
+    && grep -Eq '"name"[[:space:]]*:[[:space:]]*"helper-plugin"' "$marketplace_file" \
+    && grep -Eq '"metadata"[[:space:]]*:[[:space:]]*\{' "$marketplace_file" \
+    && grep -Eq '"name"[[:space:]]*:[[:space:]]*"issue-flow"' "$marketplace_file"; then
     record_pass
   else
     record_fail

@@ -116,13 +116,6 @@ stage_issue_flow() {
   rm -rf "$ISSUE_FLOW_DIR/.git"
 }
 
-trim_whitespace() {
-  local value="$1"
-  value="${value#"${value%%[![:space:]]*}"}"
-  value="${value%"${value##*[![:space:]]}"}"
-  printf '%s' "$value"
-}
-
 managed_issue_flow_plugin() {
   cat <<'EOF'
 {
@@ -138,162 +131,6 @@ managed_issue_flow_plugin() {
   "category": "Productivity"
 }
 EOF
-}
-
-extract_plugins_array() {
-  local content="$1"
-  local length=${#content}
-  local in_string=0
-  local escaped=0
-  local depth=0
-  local waiting_for_array=0
-  local plugins_start=-1
-  local i ch
-
-  for ((i = 0; i < length; i++)); do
-    ch="${content:i:1}"
-
-    if ((escaped)); then
-      escaped=0
-      continue
-    fi
-
-    if ((in_string)); then
-      if [ "$ch" = "\\" ]; then
-        escaped=1
-      elif [ "$ch" = '"' ]; then
-        in_string=0
-      fi
-      continue
-    fi
-
-    if [ "$depth" -eq 1 ] && [ $waiting_for_array -eq 0 ] && [ "${content:i:9}" = '"plugins"' ]; then
-      waiting_for_array=1
-    fi
-
-    if [ "$ch" = '"' ]; then
-      in_string=1
-      continue
-    fi
-
-    if [ "$waiting_for_array" -eq 1 ] && [ "$ch" = "[" ]; then
-      plugins_start=$i
-      break
-    fi
-
-    case "$ch" in
-      "{")
-        depth=$((depth + 1))
-        ;;
-      "}")
-        depth=$((depth - 1))
-        ;;
-    esac
-  done
-
-  if [ "$plugins_start" -lt 0 ]; then
-    return 1
-  fi
-
-  in_string=0
-  escaped=0
-  depth=1
-
-  for ((i = plugins_start + 1; i < length; i++)); do
-    ch="${content:i:1}"
-
-    if ((escaped)); then
-      escaped=0
-      continue
-    fi
-
-    if ((in_string)); then
-      if [ "$ch" = "\\" ]; then
-        escaped=1
-      elif [ "$ch" = '"' ]; then
-        in_string=0
-      fi
-      continue
-    fi
-
-    if [ "$ch" = '"' ]; then
-      in_string=1
-      continue
-    fi
-
-    case "$ch" in
-      "[")
-        depth=$((depth + 1))
-        ;;
-      "]")
-        depth=$((depth - 1))
-        if [ "$depth" -eq 0 ]; then
-          printf '%s' "${content:plugins_start + 1:i - plugins_start - 1}"
-          return 0
-        fi
-        ;;
-    esac
-  done
-
-  return 1
-}
-
-split_json_array_items() {
-  local content="$1"
-  local length=${#content}
-  local in_string=0
-  local escaped=0
-  local depth=0
-  local start=0
-  local i ch item
-
-  JSON_ARRAY_ITEMS=()
-
-  for ((i = 0; i < length; i++)); do
-    ch="${content:i:1}"
-
-    if ((escaped)); then
-      escaped=0
-      continue
-    fi
-
-    if ((in_string)); then
-      if [ "$ch" = "\\" ]; then
-        escaped=1
-      elif [ "$ch" = '"' ]; then
-        in_string=0
-      fi
-      continue
-    fi
-
-    if [ "$ch" = '"' ]; then
-      in_string=1
-      continue
-    fi
-
-    case "$ch" in
-      "{"|"[")
-        depth=$((depth + 1))
-        ;;
-      "}"|"]")
-        depth=$((depth - 1))
-        ;;
-      ",")
-        if [ "$depth" -eq 0 ]; then
-          item="$(trim_whitespace "${content:start:i - start}")"
-          if [ -n "$item" ]; then
-            JSON_ARRAY_ITEMS+=("$item")
-          fi
-          start=$((i + 1))
-        fi
-        ;;
-    esac
-  done
-
-  item="$(trim_whitespace "${content:start}")"
-  if [ -n "$item" ]; then
-    JSON_ARRAY_ITEMS+=("$item")
-  fi
 }
 
 write_marketplace_document() {
@@ -347,19 +184,41 @@ EOF
 }
 
 write_marketplace() {
-  local content plugins_array plugin
+  local plugin_lines plugin
   local filtered_plugins=()
 
   if [ -f "$MARKETPLACE_FILE" ]; then
-    content="$(cat "$MARKETPLACE_FILE")"
-    if plugins_array="$(extract_plugins_array "$content")"; then
-      split_json_array_items "$plugins_array"
-      for plugin in "${JSON_ARRAY_ITEMS[@]}"; do
-        if [[ "$plugin" =~ \"name\"[[:space:]]*:[[:space:]]*\"issue-flow\" ]]; then
-          continue
-        fi
+    plugin_lines="$(perl -MJSON::PP -e '
+      use strict;
+      use warnings;
+      use JSON::PP qw(decode_json);
+
+      my ($file) = @ARGV;
+      exit 0 unless -f $file && -s $file;
+
+      local $/;
+      open my $fh, "<", $file or exit 0;
+      my $content = <$fh>;
+      close $fh;
+
+      my $doc = eval { decode_json($content) };
+      exit 0 unless $doc && ref($doc) eq "HASH";
+
+      my $plugins = $doc->{plugins};
+      exit 0 unless ref($plugins) eq "ARRAY";
+
+      my $encoder = JSON::PP->new->ascii->canonical;
+      for my $plugin (@{$plugins}) {
+        next unless ref($plugin) eq "HASH";
+        next if ($plugin->{name} // q{}) eq "issue-flow";
+        print $encoder->encode($plugin), "\n";
+      }
+    ' "$MARKETPLACE_FILE")"
+
+    if [ -n "$plugin_lines" ]; then
+      while IFS= read -r plugin; do
         filtered_plugins+=("$plugin")
-      done
+      done <<<"$plugin_lines"
     fi
   fi
 
