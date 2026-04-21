@@ -107,7 +107,8 @@ picked → researching → planned → implementing → committing → pring →
      - 先在 Codex 插件目录的 `OpenAI Curated` 中安装或启用 `Superpowers`
      - 在当前仓库根目录执行：`bash scripts/install-codex.sh`
      - 脚本会准备 `~/.codex/plugins/issue-flow` 和 `~/.agents/plugins/marketplace.json`
-     - 重启 Codex 后在 `Local Plugins` 中安装或启用 `issue-flow`
+     - 脚本会把 `issue-flow` 注册到个人 marketplace `Personal Plugins`
+     - 重启 Codex 后在 `Personal Plugins` 中安装或启用 `issue-flow`
    - 错误提示必须说明：缺失的是 superpowers 运行时依赖，而不是 GitHub、仓库、worktree 或 Issue 配置错误
 
 ### 模式 A：需求到 Issue 再到实现

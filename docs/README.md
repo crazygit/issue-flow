@@ -11,6 +11,8 @@ This directory collects the deeper project documentation that does not belong on
 
 - [architecture.md](architecture.md) - components, boundaries, state model, and platform differences
 - [distribution.md](distribution.md) - packaging status and why `superpowers` remains a runtime dependency
+- [codex-marketplace.md](codex-marketplace.md) - how Codex discovers local marketplaces and plugin bundles
+- [codex-hooks.md](codex-hooks.md) - how Codex discovers hooks and how issue-flow should merge user-level hook config
 - [testing.md](testing.md) - test suites, commands, and when to run them
 
 ## Audience Guide

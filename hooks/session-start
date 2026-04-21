@@ -23,20 +23,20 @@ escape_for_json() {
 }
 
 issue_flow_escaped=$(escape_for_json "$issue_flow_content")
-session_context="<EXTREMELY_IMPORTANT>\nYou have issue-flow.\n\n**Below is the full content of your 'issue-flow' skill — an issue-driven development orchestrator. Requires superpowers as a runtime dependency.**\n\n${issue_flow_escaped}\n\n<important-reminder>Before starting issue-flow, verify the required superpowers skills are discoverable. Claude Code install command: /plugin install superpowers@claude-plugins-official . Codex install path: enable Superpowers from OpenAI Curated, then run bash scripts/install-codex.sh from the issue-flow repo and install issue-flow from Local Plugins.</important-reminder>\n</EXTREMELY_IMPORTANT>"
+session_context="<EXTREMELY_IMPORTANT>\nYou have issue-flow.\n\n**Below is the full content of your 'issue-flow' skill — an issue-driven development orchestrator. Requires superpowers as a runtime dependency.**\n\n${issue_flow_escaped}\n\n<important-reminder>Before starting issue-flow, verify the required superpowers skills are discoverable. Claude Code install command: /plugin install superpowers@claude-plugins-official . Codex install path: enable Superpowers from OpenAI Curated, then run bash scripts/install-codex.sh from the issue-flow repo and install issue-flow from Personal Plugins.</important-reminder>\n</EXTREMELY_IMPORTANT>"
 
 # Output context injection as JSON.
 # Cursor hooks expect additional_context (snake_case).
-# Claude Code hooks expect hookSpecificOutput.additionalContext (nested).
-# Copilot CLI and others expect additionalContext (top-level, SDK standard).
+# Claude Code and Codex expect hookSpecificOutput.additionalContext (nested).
+# Copilot CLI expects additionalContext (top-level).
 #
 # Uses printf instead of heredoc to work around bash 5.3+ heredoc hang.
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
   printf '{\n  "additional_context": "%s"\n}\n' "$session_context"
-elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -z "${COPILOT_CLI:-}" ]; then
-  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$session_context"
-else
+elif [ -n "${COPILOT_CLI:-}" ]; then
   printf '{\n  "additionalContext": "%s"\n}\n' "$session_context"
+else
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$session_context"
 fi
 
 exit 0

@@ -1,7 +1,7 @@
 {
-  "name": "issue-flow",
+  "name": "issue-flow-marketplace",
   "interface": {
-    "displayName": "Issue-Flow"
+    "displayName": "Issue Flow Plugins"
   },
   "plugins": [
     {

@@ -72,20 +72,13 @@ Restart Claude Code if the new plugin does not appear immediately.
 
 ### Codex
 
-Codex installation has two distinct parts:
+Codex installation exposes `issue-flow` through either a personal marketplace or the repo marketplace, and the personal installer also enables the required plugins in user-level Codex config.
 
-1. Install `Superpowers` from the Codex plugin UI under `OpenAI Curated`.
-2. Register this repository as a local plugin, then install `issue-flow` from `Local Plugins`.
+The Codex bundle entry point is [`.codex-plugin/plugin.json`](./.codex-plugin/plugin.json).
 
-Open the plugin UI in Codex:
+Recommended: personal marketplace
 
-```text
-/plugins
-```
-
-Search for `Superpowers`, then install or enable it from `OpenAI Curated`.
-
-After `Superpowers` is enabled, run the installer from this repository:
+Run the installer from this repository:
 
 ```bash
 bash scripts/install-codex.sh
@@ -93,9 +86,17 @@ bash scripts/install-codex.sh
 
 The script will:
 
-- copy this repository to `~/.codex/plugins/issue-flow`
+- stage this repository at `~/.codex/plugins/issue-flow`
 - create or update `~/.agents/plugins/marketplace.json`
-- register `issue-flow` under the `Local Plugins` marketplace
+- preserve other marketplace entries while refreshing the managed `issue-flow` entry in your user-level marketplace config
+- create or update `~/.codex/config.toml`
+- preserve existing Codex settings while ensuring `[features] codex_hooks = true`
+- preserve existing Codex plugin settings while enabling `superpowers@openai-curated`
+- preserve existing Codex plugin settings while enabling `issue-flow@<your personal marketplace id>`
+- create or update `~/.codex/hooks.json`
+- preserve existing user hooks while adding or refreshing the managed `issue-flow` `SessionStart` hook that invokes `~/.codex/plugins/issue-flow/hooks/run-hook.cmd session-start`, which in turn runs `hooks/session-start`
+
+In other words, the installer does modify user-level Codex files, but it does so as a targeted merge for the `issue-flow` entries it manages rather than overwriting the whole files.
 
 If you are developing from the current checkout and want Codex to use the live repo instead of a copied snapshot, run:
 
@@ -103,12 +104,16 @@ If you are developing from the current checkout and want Codex to use the live r
 bash scripts/install-codex.sh --dev-link
 ```
 
-Then restart Codex, open the plugin directory again, choose `Local Plugins`, and install or enable `issue-flow`.
+Then restart Codex and open the plugin directory to confirm that both `Superpowers` and `issue-flow` are enabled.
+
+Alternative: repo marketplace only
+
+If you only want to use `issue-flow` inside this repository, you can skip the installer. This repo already includes [`.agents/plugins/marketplace.json`](./.agents/plugins/marketplace.json), plus repo-scoped [`.codex/config.toml`](./.codex/config.toml) and [`.codex/hooks.json`](./.codex/hooks.json), so open this repository in Codex, trust the project, enable `Superpowers` from `OpenAI Curated` if needed, then choose `Issue Flow Plugins` and install or enable `issue-flow`.
 
 Before starting a workflow, confirm both plugins are enabled:
 
 - `Superpowers` under `OpenAI Curated`
-- `issue-flow` under `Local Plugins`
+- `issue-flow` under `Personal Plugins` or `Issue Flow Plugins`
 
 ### Start A Workflow
 
@@ -151,7 +156,8 @@ Codex:
 
 - Disable or uninstall `issue-flow` and `Superpowers` from the plugin UI
 - Remove `~/.codex/plugins/issue-flow` if you also want to delete the local staged copy
-- Remove the `issue-flow` entry from `~/.agents/plugins/marketplace.json` if you no longer want it listed in `Local Plugins`
+- Remove the `issue-flow` entry from `~/.agents/plugins/marketplace.json` if you no longer want it listed in `Personal Plugins`
+- Remove the managed `issue-flow` hook from `~/.codex/hooks.json` and disable `features.codex_hooks` in `~/.codex/config.toml` only if you no longer want any user-level Codex hooks
 
 ## Who This Is For
 
@@ -175,6 +181,7 @@ issue-flow/
 ├── tests/                  # State-machine and skill-loading checks
 ├── .agents/plugins/        # Repo-scoped Codex marketplace catalog
 ├── .claude-plugin/         # Claude Code plugin metadata
+├── .codex/                 # Repo-scoped Codex config and hooks
 └── .codex-plugin/          # Codex plugin metadata
 ```
 
@@ -193,7 +200,7 @@ Issue-Flow is usable today, but it is still opinionated and intentionally narrow
 - `superpowers` is a required runtime dependency
 - Claude Code installs through the standard marketplace flow, even though this repository currently publishes only one plugin
 - Claude Code has the strongest native integration because it supports hooks and skill chaining
-- Codex uses the plugin-bundle model and depends on `superpowers`, but `superpowers` is expected to come from `OpenAI Curated` while this repository's script only stages `issue-flow`
+- Codex uses the plugin-bundle model and depends on `superpowers`; the personal installer stages `issue-flow`, merges marketplace and hook config, and auto-enables both plugins in user-level Codex config
 
 ## Contributing
 
