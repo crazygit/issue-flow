@@ -18,7 +18,6 @@
     "development"
   ],
   "skills": "./skills/",
-  "hooks": "./hooks/hooks.json",
   "interface": {
     "displayName": "Issue Flow",
     "shortDescription": "Run issue-driven development from one Codex plugin entrypoint.",

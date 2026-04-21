@@ -12,9 +12,9 @@ What went wrong?
 
 ## Reproduction
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Expected behavior
 

@@ -186,11 +186,11 @@ else
 fi
 
 echo -n "  codex install docs prefer plugin marketplace flow ... "
-if grep -q '\.codex-plugin/plugin.json' "$REPO_ROOT/.codex/INSTALL.md" \
-  && grep -q '\.agents/plugins/marketplace.json' "$REPO_ROOT/.codex/INSTALL.md" \
-  && grep -q 'bash scripts/install-codex.sh' "$REPO_ROOT/.codex/INSTALL.md" \
-  && ! grep -q '~/.agents/skills/' "$REPO_ROOT/.codex/INSTALL.md" \
-  && ! grep -q 'ln -s ' "$REPO_ROOT/.codex/INSTALL.md"; then
+if grep -q '\.codex-plugin/plugin.json' "$REPO_ROOT/README.md" \
+  && grep -q '\.agents/plugins/marketplace.json' "$REPO_ROOT/README.md" \
+  && grep -q 'bash scripts/install-codex.sh' "$REPO_ROOT/README.md" \
+  && ! grep -q '~/.agents/skills/' "$REPO_ROOT/README.md" \
+  && ! grep -q 'ln -s ' "$REPO_ROOT/README.md"; then
   echo "ok"
   PASS=$((PASS + 1))
 else
@@ -202,7 +202,7 @@ echo -n "  session-start reminder uses Codex plugin install path ... "
 if grep -q '/plugin install superpowers@claude-plugins-official' "$REPO_ROOT/hooks/session-start" \
   && grep -q 'OpenAI Curated' "$REPO_ROOT/hooks/session-start" \
   && grep -q 'bash scripts/install-codex.sh' "$REPO_ROOT/hooks/session-start" \
-  && grep -q 'Local Plugins' "$REPO_ROOT/hooks/session-start" \
+  && grep -q 'Personal Plugins' "$REPO_ROOT/hooks/session-start" \
   && ! grep -q '~/.agents/skills/' "$REPO_ROOT/hooks/session-start" \
   && ! grep -q 'ln -s ' "$REPO_ROOT/hooks/session-start"; then
   echo "ok"

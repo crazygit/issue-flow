@@ -32,18 +32,18 @@ The orchestrator should stay small. It owns coordination, not execution details.
 
 The `skills/issue-*` files implement each phase of the lifecycle:
 
-| Skill | Responsibility |
-|-------|----------------|
-| `issue-brainstorm` | Turn a request into a design direction |
-| `issue-create` | Convert a refined idea into a GitHub issue |
-| `issue-pick` | Attach work to a specific issue and branch context |
-| `issue-research` | Research the current codebase before planning |
-| `issue-plan` | Turn issue context into an implementation plan |
-| `issue-implement` | Execute the approved plan |
-| `issue-verify` | Run verification and review steps |
-| `issue-commit` | Prepare commits with predictable structure |
-| `issue-pr` | Open or update the pull request and hand off to review |
-| `issue-finish` | Clean up and close out the workflow |
+| Skill              | Responsibility                                         |
+| ------------------ | ------------------------------------------------------ |
+| `issue-brainstorm` | Turn a request into a design direction                 |
+| `issue-create`     | Convert a refined idea into a GitHub issue             |
+| `issue-pick`       | Attach work to a specific issue and branch context     |
+| `issue-research`   | Research the current codebase before planning          |
+| `issue-plan`       | Turn issue context into an implementation plan         |
+| `issue-implement`  | Execute the approved plan                              |
+| `issue-verify`     | Run verification and review steps                      |
+| `issue-commit`     | Prepare commits with predictable structure             |
+| `issue-pr`         | Open or update the pull request and hand off to review |
+| `issue-finish`     | Clean up and close out the workflow                    |
 
 ### Hooks
 
@@ -58,7 +58,11 @@ The `skills/issue-*` files implement each phase of the lifecycle:
 
 ## State Model
 
-Issue-Flow persists session state in a `.issue-flow/` directory at the worktree root. Typical files include:
+Issue-Flow has two phases: a **pre-phase** and a **persistent state machine**.
+
+The pre-phase (`issue-brainstorm` + `issue-create`) runs before `.issue-flow/` exists. These stages are session-scoped and cannot be persisted or recovered. Mode is passed via `$ARGUMENTS --auto` since the mode file does not exist yet.
+
+The persistent state machine starts at `picked`, when `issue-pick` creates the `.issue-flow/` directory, worktree, and branch. From this point on, session state is persisted in `.issue-flow/` at the worktree root. Typical files include:
 
 - `state` - current workflow phase
 - `mode` - manual or auto

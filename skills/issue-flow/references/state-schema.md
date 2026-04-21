@@ -24,15 +24,16 @@
 
 合法值（按流转顺序）：
 
+> `brainstorm` 和 `issue-create` 发生在 `.issue-flow/` 创建之前，属于预阶段，不会出现在 `state` 文件中。
+> 持久化状态机从 `picked` 开始。
+
 ```
-none → brainstorm → picked → researching → planned → implementing → committing → pring → reviewing → finished
-                                  ↑___________________________↓（issue-verify 失败时回退到 implementing）
-                                                                               ↑___________↓（PR 后反馈循环）
+picked → researching → planned → implementing → committing → pring → reviewing → finished
+                      ↑___________________________↓（issue-verify 失败时回退到 implementing）
+                                                                   ↑___________↓（PR 后反馈循环）
 ```
 
-- `none`：尚未开始（通常不会出现在文件中）
-- `brainstorm`：正在进行需求头脑风暴（`issue-create` 不改变状态，完成后仍为 `brainstorm`）
-- `picked`：已创建 worktree/分支，等待生成计划
+- `picked`：已创建 worktree/分支，等待调研
 - `researching`：已完成 Issue 接手，正在/已完成代码库调研，等待生成计划
 - `planned`：已生成计划，等待执行
 - `implementing`：正在/已执行实现计划
@@ -86,6 +87,9 @@ docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md
 - **写入**：子 skill 可以写入 `research-notes.md`、`plan-path`、`verify-report.md` 等业务文件
 - 写入 `.issue-flow/` 状态文件时，优先使用 `Write`，不要依赖 `cat > file`、`echo ... > file` 这类 shell 重定向
 - **状态更新**：`.issue-flow/state` 由 `issue-flow` 编排器统一维护，子 skill 不应直接修改
-- **mode 适配**：子 skill 在执行门控操作前，应读取 `.issue-flow/mode`：
+- **mode 适配**：子 skill 在执行门控操作前，应按以下优先级检测运行模式：
+  1. 检查 `$ARGUMENTS` 是否包含 `--auto`（由编排器传入，用于预阶段 skill）
+  2. 读取 `.issue-flow/mode`（用于持久化状态机阶段的 skill）
+  3. 默认 `manual` 模式
   - `mode=auto` 时跳过 AskUserQuestion、`--web` 等人工门控
-  - `mode=manual` 或文件不存在时保留人工门控
+  - `mode=manual` 或无法确定时保留人工门控

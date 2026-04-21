@@ -3,8 +3,10 @@
 Issue-Flow includes metadata for both supported host surfaces:
 
 - Claude Code: [../.claude-plugin/plugin.json](../.claude-plugin/plugin.json)
+- Claude Code marketplace flow: [./claude-code-marketplace.md](./claude-code-marketplace.md)
 - Codex: [../.codex-plugin/plugin.json](../.codex-plugin/plugin.json)
 - Codex repo marketplace: [../.agents/plugins/marketplace.json](../.agents/plugins/marketplace.json)
+- Codex marketplace flow: [./codex-marketplace.md](./codex-marketplace.md)
 
 ## Packaging Status
 

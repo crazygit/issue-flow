@@ -16,6 +16,7 @@ List the exact commands you ran and any important manual checks.
 
 - [ ] `bash tests/state-machine/run-tests.sh`
 - [ ] `bash tests/skill-loading/run-tests.sh`
+- [ ] `bash tests/codex-install/run-tests.sh`
 - [ ] Manual verification completed when applicable
 
 ## Notes For Reviewers
