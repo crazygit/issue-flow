@@ -49,7 +49,6 @@ The `skills/issue-*` files implement each phase of the lifecycle:
 
 `hooks/` contains the platform-side enforcement pieces:
 
-- `session-start` reminds the host about Issue-Flow context at the start of a session
 - `state-transition-guard` blocks invalid `issue-*` skill transitions where hook support exists
 
 ### Agents
@@ -97,7 +96,7 @@ Claude Code is the primary integration target because it supports:
 
 ### Codex
 
-Codex is supported through the plugin-bundle structure recommended by the official Codex plugin docs: a plugin manifest at `.codex-plugin/plugin.json` plus a repo marketplace at `.agents/plugins/marketplace.json`. The workflow still depends on a separately installed `superpowers` plugin, and some host-level behavior remains less strict than Claude Code.
+Codex is supported through the plugin-bundle structure recommended by the official Codex plugin docs: a plugin manifest at `.codex-plugin/plugin.json` plus a repo marketplace at `.agents/plugins/marketplace.json`. The workflow still depends on a separately installed `superpowers` plugin, and Codex relies on native plugin skill discovery rather than SessionStart context injection.
 
 ## Repository Layout
 

@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Issue Flow",
     "shortDescription": "Run issue-driven development from one Codex plugin entrypoint.",
-    "longDescription": "Issue Flow bundles workflow skills and hooks into a Codex-friendly plugin package. It drives brainstorming, issue creation, planning, implementation, verification, commit, PR, and finish steps from a single orchestrator skill.",
+    "longDescription": "Issue Flow bundles workflow skills and hooks into a Codex-friendly plugin package. It drives both issue-driven delivery and lightweight bugfix repair flows from dedicated orchestrator skills.",
     "developerName": "Crazygit",
     "category": "Productivity",
     "capabilities": [
@@ -36,7 +36,7 @@
     "defaultPrompt": [
       "Use issue-flow to turn this requirement into an issue and plan.",
       "Resume the current issue-flow session in this worktree.",
-      "Start issue-flow on GitHub issue #42."
+      "Use bugfix-flow to reproduce, fix, and verify a bug before opening a PR."
     ],
     "brandColor": "#2563EB"
   }

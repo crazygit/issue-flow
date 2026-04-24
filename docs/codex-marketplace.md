@@ -214,22 +214,18 @@ repo marketplace 路径下，当前使用的是：
 以 `issue-flow` 为例：
 
 - `skills: "./skills/"` 指向 skills 目录
-- Codex hooks 不在 plugin manifest 中声明，而是通过 `.codex/config.toml` 开启，并从同层的 `.codex/hooks.json` 自动发现
+- Codex 直接通过 plugin manifest 暴露的 skills 目录发现 `issue-flow` 与 `bugfix-flow`，不需要额外的 SessionStart 上下文注入
 
 对应到仓库结构：
 
 ```text
 issue-flow/
 ├── .codex-plugin/plugin.json
-├── .codex/
-│   ├── config.toml
-│   └── hooks.json
 ├── skills/
 │   ├── issue-flow/SKILL.md
 │   ├── issue-plan/SKILL.md
 │   └── ...
 ├── hooks/
-│   ├── session-start
 │   └── state-transition-guard
 └── agents/
 ```
@@ -241,8 +237,6 @@ personal marketplace 路径的加载链路：
   → plugins[].source.path = ~/.codex/plugins/issue-flow
   → ~/.codex/plugins/issue-flow/.codex-plugin/plugin.json
   → skills/ 等插件内容
-  → ~/.codex/plugins/issue-flow/.codex/config.toml
-  → ~/.codex/plugins/issue-flow/.codex/hooks.json
 ```
 
 repo marketplace 路径的加载链路：
@@ -252,8 +246,6 @@ $REPO_ROOT/.agents/plugins/marketplace.json
   → plugins[].source.path = ./
   → $REPO_ROOT/.codex-plugin/plugin.json
   → skills/ 等插件内容
-  → $REPO_ROOT/.codex/config.toml
-  → $REPO_ROOT/.codex/hooks.json
 ```
 
 ## 6. `scripts/install-codex.sh` 到底做了什么

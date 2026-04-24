@@ -62,6 +62,56 @@ for skill_dir in "$SKILLS_DIR"/issue-*/; do
   fi
 done
 
+for skill_dir in "$SKILLS_DIR"/bugfix-*/; do
+  skill_name=$(basename "$skill_dir")
+  skill_file="$skill_dir/SKILL.md"
+
+  if [ ! -f "$skill_file" ]; then
+    echo "  FAIL: $skill_name/SKILL.md not found"
+    FAIL=$((FAIL + 1))
+    continue
+  fi
+
+  echo -n "  $skill_name: frontmatter ... "
+  if head -1 "$skill_file" | grep -q '^---$'; then
+    echo -n "ok, "
+    PASS=$((PASS + 1))
+  else
+    echo "FAIL"
+    FAIL=$((FAIL + 1))
+    continue
+  fi
+
+  echo -n "name ... "
+  if grep -q '^name:' "$skill_file"; then
+    echo -n "ok, "
+    PASS=$((PASS + 1))
+  else
+    echo "FAIL"
+    FAIL=$((FAIL + 1))
+    continue
+  fi
+
+  echo -n "description ... "
+  if grep -q '^description:' "$skill_file"; then
+    echo -n "ok, "
+    PASS=$((PASS + 1))
+  else
+    echo "FAIL"
+    FAIL=$((FAIL + 1))
+    continue
+  fi
+
+  echo -n "format ... "
+  if awk 'NR==1{next} /^---$/{found=1; exit} END{exit !found}' "$skill_file"; then
+    PASS=$((PASS + 1))
+    echo "ok"
+  else
+    echo "FAIL"
+    FAIL=$((FAIL + 1))
+  fi
+done
+
 echo ""
 echo "=== Content Constraint Tests ==="
 
@@ -158,6 +208,40 @@ else
   FAIL=$((FAIL + 1))
 fi
 
+echo -n "  bugfix-flow: declares lightweight bugfix lifecycle ... "
+if grep -q 'Skill(bugfix-pick)' "$SKILLS_DIR/bugfix-flow/SKILL.md" \
+  && grep -q 'Skill(bugfix-implement)' "$SKILLS_DIR/bugfix-flow/SKILL.md" \
+  && grep -q 'Skill(bugfix-verify)' "$SKILLS_DIR/bugfix-flow/SKILL.md" \
+  && grep -q '验证通过后默认进入 `ready`' "$SKILLS_DIR/bugfix-flow/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  bugfix-pick: supports issue and adhoc contexts ... "
+if grep -q '"source": "issue|adhoc"' "$SKILLS_DIR/bugfix-pick/SKILL.md" \
+  && grep -q '有 Issue：`fix/<N>-<slug>`' "$SKILLS_DIR/bugfix-pick/SKILL.md" \
+  && grep -q '无 Issue：`fix/<slug>`' "$SKILLS_DIR/bugfix-pick/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  bugfix-verify: relies on local verification targets ... "
+if grep -q '\.bugfix-flow/context.json' "$SKILLS_DIR/bugfix-verify/SKILL.md" \
+  && grep -q 'verification_targets' "$SKILLS_DIR/bugfix-verify/SKILL.md" \
+  && grep -q 'bugfix-flow 不读取 PR comments' "$SKILLS_DIR/bugfix-verify/SKILL.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
 echo -n "  issue-pick: updates local main before creating worktree ... "
 if grep -q 'Bash(git fetch origin main)' "$SKILLS_DIR/issue-pick/SKILL.md" \
   && grep -q 'Bash(git checkout main)' "$SKILLS_DIR/issue-pick/SKILL.md" \
@@ -198,13 +282,22 @@ else
   FAIL=$((FAIL + 1))
 fi
 
-echo -n "  session-start reminder uses Codex plugin install path ... "
-if grep -q '/plugin install superpowers@claude-plugins-official' "$REPO_ROOT/hooks/session-start" \
-  && grep -q 'OpenAI Curated' "$REPO_ROOT/hooks/session-start" \
-  && grep -q 'bash scripts/install-codex.sh' "$REPO_ROOT/hooks/session-start" \
-  && grep -q 'Personal Plugins' "$REPO_ROOT/hooks/session-start" \
-  && ! grep -q '~/.agents/skills/' "$REPO_ROOT/hooks/session-start" \
-  && ! grep -q 'ln -s ' "$REPO_ROOT/hooks/session-start"; then
+echo -n "  codex install docs no longer depend on session-start hook injection ... "
+if ! [ -e "$REPO_ROOT/hooks/session-start" ] \
+  && ! [ -e "$REPO_ROOT/.codex/hooks.json" ] \
+  && ! [ -e "$REPO_ROOT/.codex/config.toml" ] \
+  && grep -q '原生 plugin skill 发现' "$REPO_ROOT/docs/codex-hooks.md"; then
+  echo "ok"
+  PASS=$((PASS + 1))
+else
+  echo "FAIL"
+  FAIL=$((FAIL + 1))
+fi
+
+echo -n "  README documents bugfix-flow usage ... "
+if grep -q '/bugfix-flow' "$REPO_ROOT/README.md" \
+  && grep -q '\.bugfix-flow/' "$REPO_ROOT/README.md" \
+  && grep -q 'Use `bugfix-flow` when you want a lighter repair loop' "$REPO_ROOT/README.md"; then
   echo "ok"
   PASS=$((PASS + 1))
 else

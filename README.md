@@ -1,6 +1,6 @@
 # Issue-Flow
 
-Issue-Flow is an issue-driven development orchestrator for coding agents. It turns a feature request or GitHub issue into a structured delivery workflow: clarify the problem, write a plan, implement changes, verify the result, and package the work for review.
+Issue-Flow is a workflow plugin for coding agents. It ships an issue-driven delivery orchestrator plus a lightweight bugfix repair flow so agents can either drive a feature from issue creation to review or take a bug from reproduction to verified fix.
 
 Issue-Flow is built to work with [superpowers](https://github.com/obra/superpowers). Superpowers provides the core development workflows, and Issue-Flow adds a lightweight state machine around them so agent sessions can stay aligned with a single issue from start to finish.
 
@@ -14,9 +14,11 @@ Issue-Flow is built to work with [superpowers](https://github.com/obra/superpowe
 
 ## How It Works
 
-Issue-Flow tracks a development session through a small workflow state machine:
+Issue-Flow ships two workflow state machines:
 
-The workflow has two parts: a pre-phase that produces a GitHub Issue number, and a persistent state machine that tracks delivery from that point on.
+### `issue-flow`
+
+The issue-driven workflow has two parts: a pre-phase that produces a GitHub Issue number, and a persistent state machine that tracks delivery from that point on.
 
 **Pre-phase** (session-scoped, not persistable):
 
@@ -40,6 +42,25 @@ Each persistent state maps to a focused skill:
 - `issue-finish` wraps up branch and workspace state
 
 The top-level `issue-flow` skill is the orchestrator. It reads the current session state and routes the agent to the next correct step.
+
+### `bugfix-flow`
+
+The bugfix workflow is intentionally narrower. It is for cases where you already know there is a bug and want the agent to focus on reproducing, fixing, and verifying it before any commit or PR step.
+
+**Persistent state machine** (`.bugfix-flow/` created by `bugfix-pick`):
+
+```text
+picked -> implementing -> ready -> finished
+```
+
+Each persistent state maps to a focused skill:
+
+- `bugfix-pick` creates worktree/context from either a bug description or an existing issue
+- `bugfix-implement` applies the minimal code changes needed for the fix
+- `bugfix-verify` runs focused verification and loops back on failure
+- `bugfix-finish` cleans up the bugfix session after the user decides to stop
+
+The top-level `bugfix-flow` skill is the orchestrator. It routes the session until verification passes, then pauses in `ready` so a human can decide whether to commit or open a PR.
 
 ## Installation
 
@@ -90,13 +111,10 @@ The script will:
 - create or update `~/.agents/plugins/marketplace.json`
 - preserve other marketplace entries while refreshing the managed `issue-flow` entry in your user-level marketplace config
 - create or update `~/.codex/config.toml`
-- preserve existing Codex settings while ensuring `[features] codex_hooks = true`
 - preserve existing Codex plugin settings while enabling `superpowers@openai-curated`
 - preserve existing Codex plugin settings while enabling `issue-flow@<your personal marketplace id>`
-- create or update `~/.codex/hooks.json`
-- preserve existing user hooks while adding or refreshing the managed `issue-flow` `SessionStart` hook that invokes `~/.codex/plugins/issue-flow/hooks/run-hook.cmd session-start`, which in turn runs `hooks/session-start`
 
-In other words, the installer does modify user-level Codex files, but it does so as a targeted merge for the `issue-flow` entries it manages rather than overwriting the whole files.
+In other words, the installer does modify user-level Codex files, but it only merges the plugin entries it manages rather than overwriting the whole files.
 
 If you are developing from the current checkout and want Codex to use the live repo instead of a copied snapshot, run:
 
@@ -108,7 +126,7 @@ Then restart Codex and open the plugin directory to confirm that both `Superpowe
 
 Alternative: repo marketplace only
 
-If you only want to use `issue-flow` inside this repository, you can skip the installer. This repo already includes [`.agents/plugins/marketplace.json`](./.agents/plugins/marketplace.json), plus repo-scoped [`.codex/config.toml`](./.codex/config.toml) and [`.codex/hooks.json`](./.codex/hooks.json), so open this repository in Codex, trust the project, enable `Superpowers` from `OpenAI Curated` if needed, then choose `Issue Flow Plugins` and install or enable `issue-flow`.
+If you only want to use `issue-flow` inside this repository, you can skip the installer. This repo already includes [`.agents/plugins/marketplace.json`](./.agents/plugins/marketplace.json), so open this repository in Codex, trust the project, enable `Superpowers` from `OpenAI Curated` if needed, then choose `Issue Flow Plugins` and install or enable `issue-flow`.
 
 Before starting a workflow, confirm both plugins are enabled:
 
@@ -124,9 +142,17 @@ After installation, start or resume a workflow:
 /issue-flow --auto Add email login support
 /issue-flow #42
 /issue-flow
+/bugfix-flow Fix panic when config file is empty
+/bugfix-flow --auto Fix panic when config file is empty
+/bugfix-flow #42
+/bugfix-flow
 ```
 
-In Codex environments that expose commands without the leading slash, `issue-flow` also works.
+In Codex environments that expose commands without the leading slash, `issue-flow` and `bugfix-flow` also work.
+
+Use `issue-flow` when the work should stay anchored to a GitHub issue through planning, implementation, review, and PR handling.
+
+Use `bugfix-flow` when you want a lighter repair loop that stops after verification succeeds and does not force brainstorming, issue creation, commit, or PR creation.
 
 ### Updating
 
@@ -157,7 +183,7 @@ Codex:
 - Disable or uninstall `issue-flow` and `Superpowers` from the plugin UI
 - Remove `~/.codex/plugins/issue-flow` if you also want to delete the local staged copy
 - Remove the `issue-flow` entry from `~/.agents/plugins/marketplace.json` if you no longer want it listed in `Personal Plugins`
-- Remove the managed `issue-flow` hook from `~/.codex/hooks.json` and disable `features.codex_hooks` in `~/.codex/config.toml` only if you no longer want any user-level Codex hooks
+- Remove the managed `issue-flow` plugin entry from `~/.codex/config.toml` if you no longer want it auto-enabled
 
 ## Who This Is For
 

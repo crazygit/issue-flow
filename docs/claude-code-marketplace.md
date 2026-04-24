@@ -143,7 +143,7 @@ Claude Code 的插件相关文件存放在 `~/.claude/plugins/` 下：
 | ---------- | -------------------------- | ------------------------------------------ |
 | Skills     | `skills/*/SKILL.md`        | 注入到会话的可用 skill 列表                |
 | Agents     | `agents/*.md`              | 注册为可用 subagent 类型                   |
-| Hooks      | `hooks/hooks.json`         | 注册事件钩子（session-start、tool 调用等） |
+| Hooks      | `hooks/hooks.json`         | 注册事件钩子（tool 调用等）                |
 | References | `skills/*/references/*.md` | 作为 skill 的参考文档随 skill 加载         |
 
 ## 4. Monorepo vs 单插件 Marketplace 的差异

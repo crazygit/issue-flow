@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # state-transition-guard.sh
-# PreToolUse hook for Claude Code that validates issue-flow skill state transitions.
+# PreToolUse hook for Claude Code that validates issue-flow and bugfix-flow
+# skill state transitions.
 #
 # Receives JSON on stdin from Claude Code hooks.
 # - Reads the skill name from tool_input
@@ -16,17 +17,22 @@ INPUT=$(cat)
 # Extract skill name from tool_input.name (jq)
 SKILL_NAME=$(echo "$INPUT" | jq -r '.tool_input.name // empty' 2>/dev/null)
 
-# If not an issue-* skill, pass through
-if [[ -z "$SKILL_NAME" ]] || [[ "$SKILL_NAME" != issue-* ]]; then
+# If not a workflow skill, pass through
+if [[ -z "$SKILL_NAME" ]] || [[ "$SKILL_NAME" != issue-* && "$SKILL_NAME" != bugfix-* ]]; then
   exit 0
 fi
 
-# --- Find .issue-flow/state by walking up from CWD ---
+# --- Resolve state file by workflow prefix ---
+STATE_DIR_NAME=".issue-flow"
+if [[ "$SKILL_NAME" == bugfix-* ]]; then
+  STATE_DIR_NAME=".bugfix-flow"
+fi
+
 find_state_file() {
   local dir="$PWD"
   while [[ "$dir" != "/" ]]; do
-    if [[ -f "$dir/.issue-flow/state" ]]; then
-      echo "$dir/.issue-flow/state"
+    if [[ -f "$dir/${STATE_DIR_NAME}/state" ]]; then
+      echo "$dir/${STATE_DIR_NAME}/state"
       return 0
     fi
     dir=$(dirname "$dir")
@@ -48,9 +54,9 @@ if find_state_file > /dev/null 2>&1; then
 else
   CURRENT_STATE="none"
   # No state file exists; only certain skills are allowed
-  # Special case: issue-finish should be allowed even without state file
+  # Special case: finish skills should be allowed even without state file
   # (state may have been deleted during cleanup)
-  if [[ "$SKILL_NAME" == "issue-finish" ]]; then
+  if [[ "$SKILL_NAME" == "issue-finish" || "$SKILL_NAME" == "bugfix-finish" ]]; then
     exit 0
   fi
 fi
@@ -59,41 +65,29 @@ fi
 # Each skill maps to an array of states from which it can be called.
 declare -A TRANSITIONS
 
-# issue-brainstorm: only from no state / none
+# issue-flow transitions
 TRANSITIONS[issue-brainstorm]="none"
-
-# issue-create: from brainstorm or none (standalone use)
 TRANSITIONS[issue-create]="brainstorm none"
-
-# issue-pick: from brainstorm (after brainstorm) or none (standalone Mode B)
 TRANSITIONS[issue-pick]="brainstorm none"
-
-# issue-plan: from picked
 TRANSITIONS[issue-plan]="researching"
-
-# issue-research: from picked
 TRANSITIONS[issue-research]="picked"
-
-# issue-implement: from planned or reviewing
 TRANSITIONS[issue-implement]="planned reviewing"
-
-# issue-verify: from implementing or reviewing
 TRANSITIONS[issue-verify]="implementing reviewing"
-
-# issue-commit: from committing
 TRANSITIONS[issue-commit]="committing"
-
-# issue-pr: from pring
 TRANSITIONS[issue-pr]="pring"
-
-# issue-finish: from finished
 TRANSITIONS[issue-finish]="finished"
+
+# bugfix-flow transitions
+TRANSITIONS[bugfix-pick]="none"
+TRANSITIONS[bugfix-implement]="picked ready"
+TRANSITIONS[bugfix-verify]="implementing"
+TRANSITIONS[bugfix-finish]="finished"
 
 # --- Validate transition ---
 ALLOWED_STATES="${TRANSITIONS[$SKILL_NAME]:-}"
 
 if [[ -z "$ALLOWED_STATES" ]]; then
-  # Unknown issue-* skill — allow it (don't block unlisted skills)
+  # Unknown workflow skill — allow it (don't block unlisted skills)
   exit 0
 fi
 

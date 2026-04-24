@@ -9,7 +9,6 @@ CODEX_DIR="${HOME}/.codex"
 PLUGINS_DIR="${HOME}/.codex/plugins"
 ISSUE_FLOW_DIR="${PLUGINS_DIR}/issue-flow"
 CODEX_CONFIG_FILE="${CODEX_DIR}/config.toml"
-CODEX_HOOKS_FILE="${CODEX_DIR}/hooks.json"
 MARKETPLACE_DIR="${HOME}/.agents/plugins"
 MARKETPLACE_FILE="${MARKETPLACE_DIR}/marketplace.json"
 MARKETPLACE_NAME="codex-personal-plugins"
@@ -70,7 +69,8 @@ usage() {
   cat <<'EOF'
 Usage: bash scripts/install-codex.sh [--copy|--dev-link] [--help]
 
-Prepare a personal Codex marketplace entry for issue-flow.
+Prepare a personal Codex marketplace entry for the issue-flow plugin bundle.
+The bundle includes both `issue-flow` and `bugfix-flow` skills.
 
 Options:
   --copy      Copy the current repository into ~/.codex/plugins/issue-flow (default)
@@ -232,9 +232,6 @@ merge_codex_config() {
   issue_flow_plugin_id="issue-flow@${MARKETPLACE_NAME}"
   if [ ! -f "$CODEX_CONFIG_FILE" ]; then
     cat >"$CODEX_CONFIG_FILE" <<EOF
-[features]
-codex_hooks = true
-
 [plugins."superpowers@openai-curated"]
 enabled = true
 
@@ -248,20 +245,10 @@ EOF
 
   awk -v issue_flow_plugin_id="$issue_flow_plugin_id" '
     BEGIN {
-      in_features = 0
       in_superpowers = 0
       in_issue_flow = 0
-      found_features = 0
-      found_codex_hooks = 0
       found_superpowers = 0
       found_issue_flow = 0
-    }
-
-    function ensure_codex_hooks_line() {
-      if (in_features && !found_codex_hooks) {
-        print "codex_hooks = true"
-        found_codex_hooks = 1
-      }
     }
 
     function ensure_plugin_enabled_line() {
@@ -276,17 +263,11 @@ EOF
     }
 
     /^\[/ {
-      ensure_codex_hooks_line()
       ensure_plugin_enabled_line()
-      in_features = 0
       in_superpowers = 0
       in_issue_flow = 0
 
-      if ($0 ~ /^\[features\][[:space:]]*$/) {
-        in_features = 1
-        found_features = 1
-      }
-      else if ($0 ~ /^\[plugins\."superpowers@openai-curated"\][[:space:]]*$/) {
+      if ($0 ~ /^\[plugins\."superpowers@openai-curated"\][[:space:]]*$/) {
         in_superpowers = 1
       }
       else if ($0 == "[plugins.\"" issue_flow_plugin_id "\"]") {
@@ -298,14 +279,6 @@ EOF
     }
 
     {
-      if (in_features && $0 ~ /^[[:space:]]*codex_hooks[[:space:]]*=/) {
-        if (!found_codex_hooks) {
-          print "codex_hooks = true"
-          found_codex_hooks = 1
-        }
-        next
-      }
-
       if (in_superpowers && $0 ~ /^[[:space:]]*enabled[[:space:]]*=/) {
         if (!found_superpowers) {
           print "enabled = true"
@@ -326,19 +299,10 @@ EOF
     }
 
     END {
-      ensure_codex_hooks_line()
       ensure_plugin_enabled_line()
 
-      if (!found_features) {
-        if (NR > 0) {
-          print ""
-        }
-        print "[features]"
-        print "codex_hooks = true"
-      }
-
       if (!in_superpowers && !found_superpowers) {
-        if (NR > 0 || found_features) {
+        if (NR > 0) {
           print ""
         }
         print "[plugins.\"superpowers@openai-curated\"]"
@@ -356,85 +320,20 @@ EOF
   mv "$tmp_file" "$CODEX_CONFIG_FILE"
 }
 
-managed_issue_flow_hook_command() {
-  printf 'bash "%s/hooks/run-hook.cmd" session-start' "$ISSUE_FLOW_DIR"
-}
-
-merge_codex_hooks() {
-  local managed_command
-
-  managed_command="$(managed_issue_flow_hook_command)"
-
-  perl -MJSON::PP -e '
-    use strict;
-    use warnings;
-    use JSON::PP qw(decode_json);
-
-    my ($file, $managed_command, $status_message) = @ARGV;
-    my $doc = {};
-
-    if (-f $file && -s $file) {
-      local $/;
-      open my $fh, "<", $file or die "Failed to read $file: $!";
-      my $content = <$fh>;
-      close $fh;
-      $doc = decode_json($content);
-      die "Expected top-level JSON object in $file\n" unless ref($doc) eq "HASH";
-    }
-
-    $doc->{hooks} = {} unless ref($doc->{hooks}) eq "HASH";
-    $doc->{hooks}{SessionStart} = [] unless ref($doc->{hooks}{SessionStart}) eq "ARRAY";
-
-    my @filtered_groups = grep {
-      my $group = $_;
-      my $hooks = ref($group) eq "HASH" && ref($group->{hooks}) eq "ARRAY" ? $group->{hooks} : [];
-      my $is_managed = 0;
-
-      for my $hook (@{$hooks}) {
-        next unless ref($hook) eq "HASH";
-        if (($hook->{command} // q{}) eq $managed_command) {
-          $is_managed = 1;
-          last;
-        }
-      }
-
-      !$is_managed;
-    } @{$doc->{hooks}{SessionStart}};
-
-    push @filtered_groups, {
-      matcher => "startup|resume",
-      hooks => [
-        {
-          type => "command",
-          command => $managed_command,
-          statusMessage => $status_message,
-        }
-      ],
-    };
-
-    $doc->{hooks}{SessionStart} = \@filtered_groups;
-
-    my $encoder = JSON::PP->new->ascii->pretty->canonical;
-    open my $out, ">", $file or die "Failed to write $file: $!";
-    print {$out} $encoder->encode($doc);
-    close $out;
-  ' "$CODEX_HOOKS_FILE" "$managed_command" "Loading issue-flow workspace context"
-}
-
 print_summary() {
   cat <<EOF
 Codex local plugin install complete.
 
 Installed paths:
-  issue-flow:  $ISSUE_FLOW_DIR
-  marketplace: $MARKETPLACE_FILE
-  config:      $CODEX_CONFIG_FILE
-  hooks:       $CODEX_HOOKS_FILE
+  plugin bundle: $ISSUE_FLOW_DIR
+  marketplace:   $MARKETPLACE_FILE
+  config:        $CODEX_CONFIG_FILE
 
 Next steps:
   1. Restart Codex.
   2. Open the plugin directory and confirm "Superpowers" and "issue-flow" are enabled.
-  3. If needed, look for "issue-flow" under "$MARKETPLACE_DISPLAY_NAME".
+  3. Use either `issue-flow` or `bugfix-flow` from the installed plugin bundle.
+  4. If needed, look for "issue-flow" under "$MARKETPLACE_DISPLAY_NAME".
 EOF
 }
 
@@ -442,5 +341,4 @@ prepare_directories
 stage_issue_flow
 write_marketplace
 merge_codex_config
-merge_codex_hooks
 print_summary
