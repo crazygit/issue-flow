@@ -5,7 +5,7 @@
 原则：
 
 - 先生成草稿，再由用户确认
-- 最终创建必须使用 `gh issue create --web`
+- 最终创建通过 API 直接执行（`gh issue create --body-file`），不使用 `--web`（URL 长度限制会导致失败）
 - 一个 Issue 对应一个明确可交付结果
 - 大需求优先拆成父 Issue 加子 Issue，或用 Milestone 聚合
 - 能用 GitHub 原生 issue type、issue fields、sub-issues、dependencies 时，优先用原生能力，不把结构化元数据硬塞进正文

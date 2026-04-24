@@ -49,7 +49,7 @@ picked → researching → planned → implementing → committing → pring →
 合法值：
 
 - `manual`：人工确认模式。每个门控点暂停，等用户确认后再继续。
-- `auto`：全自动模式。连续自动推进，GitHub 写操作直接执行（不使用 `--web`）。
+- `auto`：全自动模式。连续自动推进，GitHub 写操作通过 API 直接创建（使用 `--body-file` 而非 `--web`，避免 URL 长度限制）。
 
 ### `issue.json`
 
@@ -92,4 +92,4 @@ docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md
   2. 读取 `.issue-flow/mode`（用于持久化状态机阶段的 skill）
   3. 默认 `manual` 模式
   - `mode=auto` 时跳过 AskUserQuestion、`--web` 等人工门控
-  - `mode=manual` 或无法确定时保留人工门控
+  - `mode=manual` 或文件不存在时保留人工门控，GitHub 写操作同样通过 API 创建并展示 URL 供用户审查（不使用 `--web`，因其有 URL 长度限制）
