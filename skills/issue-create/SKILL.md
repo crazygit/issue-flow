@@ -80,11 +80,11 @@ allowed-tools:
 TMPFILE=$(mktemp /tmp/issue-draft.XXXXXX.md)
 # 使用 Write 将起草的 Issue 内容写入 $TMPFILE
 gh issue create --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
-rm -f "$TMPFILE"
 ```
 
 捕获输出中的 Issue URL，展示给用户。用户可直接在 GitHub 网页上编辑 Issue 内容。
-如果用户需要修改，使用 `gh issue edit <N> --body-file "$TMPFILE"` 更新。
+如果用户需要修改，重新生成内容到临时文件后使用 `gh issue edit <N> --body-file "$TMPFILE"` 更新。
+确认 Issue 无需进一步修改后，执行 `rm -f "$TMPFILE"` 清理临时文件。
 
 创建完成后，提示用户："Issue 已创建：`<URL>`，可在网页上审核/编辑。继续 `/issue-flow #<编号>` 进入下一步。"
 

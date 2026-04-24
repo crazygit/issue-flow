@@ -89,10 +89,10 @@ allowed-tools:
    ```bash
    TMPFILE=$(mktemp /tmp/pr-draft.XXXXXX.md)
    # 使用 Write 将 PR body 写入 $TMPFILE
-   gh pr create --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
+   gh pr create --draft --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
    rm -f "$TMPFILE"
    ```
-   > ⛔ **禁止使用 `--web`**：`--web` 会打开浏览器等待用户手动操作，在 CLI/TUI 环境中不可用。始终通过 API 直接创建 PR。
+   > ⛔ **禁止使用 `--web`**：`--web` 会打开浏览器等待用户手动操作，在 CLI/TUI 环境中不可用。始终通过 API 直接创建 PR。Manual 模式默认创建为 Draft PR，由用户在 GitHub 页面确认无误后手动发布，避免过早触发 CI 或通知。
 3. 命令结束后清理临时文件
 
 #### Auto 模式

@@ -87,7 +87,6 @@ docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md
 - **写入**：子 skill 可以写入 `research-notes.md`、`plan-path`、`verify-report.md` 等业务文件
 - 写入 `.issue-flow/` 状态文件时，优先使用 `Write`，不要依赖 `cat > file`、`echo ... > file` 这类 shell 重定向
 - **状态更新**：`.issue-flow/state` 由 `issue-flow` 编排器统一维护，子 skill 不应直接修改
-<<<<<<< HEAD
 - **mode 适配**：子 skill 在执行门控操作前，应按以下优先级检测运行模式：
   1. 检查 `$ARGUMENTS` 是否包含 `--auto`（由编排器传入，用于预阶段 skill）
   2. 读取 `.issue-flow/mode`（用于持久化状态机阶段的 skill）
