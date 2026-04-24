@@ -49,7 +49,7 @@ picked → researching → planned → implementing → committing → pring →
 合法值：
 
 - `manual`：人工确认模式。每个门控点暂停，等用户确认后再继续。
-- `auto`：全自动模式。连续自动推进，GitHub 写操作直接执行（不使用 `--web`）。
+- `auto`：全自动模式。连续自动推进，GitHub 写操作通过 API 直接创建（使用 `--body-file` 而非 `--web`，避免 URL 长度限制）。
 
 ### `issue.json`
 
@@ -87,9 +87,10 @@ docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md
 - **写入**：子 skill 可以写入 `research-notes.md`、`plan-path`、`verify-report.md` 等业务文件
 - 写入 `.issue-flow/` 状态文件时，优先使用 `Write`，不要依赖 `cat > file`、`echo ... > file` 这类 shell 重定向
 - **状态更新**：`.issue-flow/state` 由 `issue-flow` 编排器统一维护，子 skill 不应直接修改
+<<<<<<< HEAD
 - **mode 适配**：子 skill 在执行门控操作前，应按以下优先级检测运行模式：
   1. 检查 `$ARGUMENTS` 是否包含 `--auto`（由编排器传入，用于预阶段 skill）
   2. 读取 `.issue-flow/mode`（用于持久化状态机阶段的 skill）
   3. 默认 `manual` 模式
   - `mode=auto` 时跳过 AskUserQuestion、`--web` 等人工门控
-  - `mode=manual` 或无法确定时保留人工门控
+  - `mode=manual` 或文件不存在时保留人工门控，GitHub 写操作同样通过 API 创建并展示 URL 供用户审查（不使用 `--web`，因其有 URL 长度限制）

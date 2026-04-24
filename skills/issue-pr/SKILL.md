@@ -1,7 +1,7 @@
 ---
 name: issue-pr
 description: >-
-  创建 Pull Request。支持 manual 模式（--web 浏览器审核）和 auto 模式（直接创建 draft PR）。
+  创建 Pull Request。支持 manual 模式（直接 API 创建）和 auto 模式（直接创建 draft PR）。
   负责确认 PR 基本前提、关联 Issue、起草 PR 文案。
 argument-hint: "[Issue 编号]（可选，默认自动推断）"
 disable-model-invocation: false
@@ -19,7 +19,6 @@ allowed-tools:
   - Bash(git remote -v)
   - Bash(git rev-parse *)
   - Bash(gh auth status *)
-  - Bash(gh pr create --web *)
   - Bash(gh pr create *)
   - Bash(gh pr list --head *)
   - Bash(gh issue view --comments *)
@@ -90,11 +89,11 @@ allowed-tools:
    ```bash
    TMPFILE=$(mktemp /tmp/pr-draft.XXXXXX.md)
    # 使用 Write 将 PR body 写入 $TMPFILE
-   gh pr create --web --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
+   gh pr create --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
    rm -f "$TMPFILE"
    ```
-3. 使用 `--web` 让用户在浏览器中审核后手动提交；由用户在 GitHub 页面自行决定创建为 draft 还是 ready for review
-4. 命令结束后清理临时文件
+   > ⛔ **禁止使用 `--web`**：`--web` 会打开浏览器等待用户手动操作，在 CLI/TUI 环境中不可用。始终通过 API 直接创建 PR。
+3. 命令结束后清理临时文件
 
 #### Auto 模式
 
@@ -118,6 +117,6 @@ rm -f "$TMPFILE"
 - auto 模式下默认创建 draft PR，避免过早进入正式评审
 - 找到 Issue 时，正文应关联 Issue（`Closes #N`）
 - 不自动 `git push`
-- manual 模式下所有 GitHub 写操作使用 `--web` 由人工审核，并由用户自行选择是否以 draft 形式创建
+- manual 模式下直接通过 API 创建 PR（⛔ 禁止使用 `--web`），由用户确认后提交
 - 未找到关联 Issue 时提示用户，不编造关联关系
 - 不要编造变更内容 — 严格从 `git diff` 和 Issue 中提取

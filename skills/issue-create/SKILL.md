@@ -71,23 +71,26 @@ allowed-tools:
 
 ### 6. 创建 Issue
 
+> ⛔ **禁止使用 `--web` 标志！** `gh issue create --web` 将整个 title + body + labels 编码到浏览器 URL 中。当 body 较长（设计规格、详细描述 — 在 issue-flow 工作流中很常见）时会触发 `maximum URL length exceeded` 错误。无论 manual 还是 auto 模式，都直接通过 API 创建，使用 `--body-file` 传递 body 内容。
+
 #### Manual 模式
 
-执行以下命令：
+直接通过 API 创建 Issue（不用 `--web`），然后让用户在 GitHub 上审核：
 ```bash
 TMPFILE=$(mktemp /tmp/issue-draft.XXXXXX.md)
 # 使用 Write 将起草的 Issue 内容写入 $TMPFILE
-gh issue create --web --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
+gh issue create --title "..." --label "..." --assignee "@me" --body-file "$TMPFILE"
 rm -f "$TMPFILE"
 ```
 
-使用 `--web` 让用户在浏览器中审核后手动提交，命令结束后清理临时文件。
+捕获输出中的 Issue URL，展示给用户。用户可直接在 GitHub 网页上编辑 Issue 内容。
+如果用户需要修改，使用 `gh issue edit <N> --body-file "$TMPFILE"` 更新。
 
-创建完成后，提示用户："Issue 创建完成后，请继续 `/issue-flow #<编号>` 以进入下一步。"
+创建完成后，提示用户："Issue 已创建：`<URL>`，可在网页上审核/编辑。继续 `/issue-flow #<编号>` 进入下一步。"
 
 #### Auto 模式
 
-直接执行：
+直接执行（与 manual 相同的命令）：
 ```bash
 TMPFILE=$(mktemp /tmp/issue-draft.XXXXXX.md)
 # 使用 Write 将起草的 Issue 内容写入 $TMPFILE
@@ -110,5 +113,6 @@ rm -f "$TMPFILE"
 - 对话中的要点列表自动转换为验收标准
 - 概述保持简洁（1-3 句）
 - 背景解释"为什么"，不重复"做什么"
-- manual 模式下必须使用 `--web` 让用户在浏览器中审核确认
+- **⛔ 禁止使用 `--web`** — body 较长时会触发 URL 长度限制错误，始终通过 API 直接创建
+- manual 模式下先创建 Issue，再让用户在 GitHub 网页上审核/编辑
 - auto 模式下直接创建，输出编号和 URL 供后续步骤使用
