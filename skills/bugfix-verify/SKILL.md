@@ -64,7 +64,7 @@ allowed-tools:
 
 ### 3. 变更检查
 
-1. 运行 `git diff <base>...HEAD` 或等价 diff，查看本次修复的实际改动
+1. 确定基准分支（`main` 或 `origin/main`），运行 `git diff <base>...HEAD` 查看本次修复的实际改动
 2. 判断变更是否覆盖 `verification_targets`
 3. 如存在明显未覆盖的目标，在报告中标记为 ❌ 或 ⚠️
 

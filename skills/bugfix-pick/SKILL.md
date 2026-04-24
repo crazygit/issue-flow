@@ -14,8 +14,6 @@ allowed-tools:
   - Bash(git remote -v)
   - Bash(git rev-parse --is-inside-work-tree)
   - Bash(git fetch origin main)
-  - Bash(git checkout main)
-  - Bash(git merge --ff-only origin/main)
   - Bash(gh auth status *)
   - Bash(gh repo view *)
   - Bash(gh issue view *)
@@ -68,11 +66,8 @@ allowed-tools:
 
 ### 3. 创建 worktree 和分支
 
-1. 先更新本地 `main` 到最新 `origin/main`
-   - 运行 `git fetch origin main`
-   - 运行 `git checkout main`
-   - 运行 `git merge --ff-only origin/main`
-2. 使用 `superpowers:using-git-worktrees` 创建隔离工作区
+1. 运行 `git fetch origin main` 更新远程分支信息
+2. 使用 `superpowers:using-git-worktrees` 基于 `origin/main` 创建隔离工作区
 3. 分支命名：
    - 有 Issue：`fix/<N>-<slug>`
    - 无 Issue：`fix/<slug>`

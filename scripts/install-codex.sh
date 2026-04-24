@@ -332,7 +332,7 @@ Installed paths:
 Next steps:
   1. Restart Codex.
   2. Open the plugin directory and confirm "Superpowers" and "issue-flow" are enabled.
-  3. Use either `issue-flow` or `bugfix-flow` from the installed plugin bundle.
+  3. Use either 'issue-flow' or 'bugfix-flow' from the installed plugin bundle.
   4. If needed, look for "issue-flow" under "$MARKETPLACE_DISPLAY_NAME".
 EOF
 }

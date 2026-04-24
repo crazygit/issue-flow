@@ -9,7 +9,7 @@ allowed-tools:
   - Bash(git worktree remove *)
   - Bash(git branch *)
   - Bash(git status *)
-  - Bash(rm -r .bugfix-flow)
+  - Bash(rm -rf .bugfix-flow)
   - AskUserQuestion
   - Skill(superpowers:finishing-a-development-branch)
 ---
@@ -55,7 +55,7 @@ bugfix-flow 默认不要求在此阶段创建 PR。
 无论 manual 还是 auto，在收尾完成后删除 `.bugfix-flow/` 目录：
 
 ```bash
-rm -r .bugfix-flow
+rm -rf .bugfix-flow
 ```
 
 ### 5. 输出
