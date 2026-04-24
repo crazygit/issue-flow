@@ -4,7 +4,6 @@
 # ensures compatibility across platforms and hook invocation styles.
 #
 # Usage: run-hook.cmd <hook-name>
-#   run-hook.cmd session-start
 #   run-hook.cmd state-transition-guard
 
 set -euo pipefail

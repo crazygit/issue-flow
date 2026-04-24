@@ -32,7 +32,7 @@ Issue-Flow is intentionally an orchestrator, not a bundled workflow platform. Ke
 - Codex can identify the repository root as an installable plugin package through `.codex-plugin/plugin.json`
 - Codex can expose the plugin in a repo-scoped marketplace through `.agents/plugins/marketplace.json`
 - Installation instructions can point to stable manifest and marketplace locations
-- `scripts/install-codex.sh` can stage `issue-flow` and update the user's personal marketplace in one step
+- `scripts/install-codex.sh` can stage `issue-flow` and update the user's personal marketplace plus plugin enablement in one step
 
 ## What It Does Not Solve Yet
 

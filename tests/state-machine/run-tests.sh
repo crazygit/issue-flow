@@ -11,13 +11,14 @@ run_test() {
   local current_state="$2"
   local skill="$3"
   local expected_exit="$4"
+  local state_dir="${5:-.issue-flow}"
 
   echo -n "  $description ... "
 
   local tmpdir
   tmpdir=$(mktemp -d)
-  mkdir -p "$tmpdir/.issue-flow"
-  echo "$current_state" > "$tmpdir/.issue-flow/state"
+  mkdir -p "$tmpdir/$state_dir"
+  echo "$current_state" > "$tmpdir/$state_dir/state"
 
   local input
   input=$(printf '{"tool_input":{"name":"%s"}}' "$skill")
@@ -73,6 +74,21 @@ run_test "researching → issue-verify" "researching" "issue-verify" 2
 echo ""
 echo "Non-issue skills (should exit 0):"
 run_test "other-skill passes through" "picked" "other-skill" 0
+
+echo ""
+echo "Bugfix transitions (should exit 0):"
+run_test "none → bugfix-pick" "none" "bugfix-pick" 0 ".bugfix-flow"
+run_test "picked → bugfix-implement" "picked" "bugfix-implement" 0 ".bugfix-flow"
+run_test "implementing → bugfix-verify" "implementing" "bugfix-verify" 0 ".bugfix-flow"
+run_test "ready → bugfix-implement" "ready" "bugfix-implement" 0 ".bugfix-flow"
+run_test "finished → bugfix-finish" "finished" "bugfix-finish" 0 ".bugfix-flow"
+
+echo ""
+echo "Illegal bugfix transitions (should exit 2):"
+run_test "none → bugfix-verify" "none" "bugfix-verify" 2 ".bugfix-flow"
+run_test "picked → bugfix-verify" "picked" "bugfix-verify" 2 ".bugfix-flow"
+run_test "implementing → bugfix-finish" "implementing" "bugfix-finish" 2 ".bugfix-flow"
+run_test "ready → bugfix-finish" "ready" "bugfix-finish" 2 ".bugfix-flow"
 
 echo ""
 echo "=== Results: $PASS passed, $FAIL failed ==="

@@ -33,7 +33,7 @@ else
   record_fail
 fi
 
-echo -n "  install script stages only issue-flow locally and updates marketplace config ... "
+echo -n "  install script stages the plugin bundle, including bugfix-flow, and updates marketplace config ... "
 tmpdir=$(mktemp -d)
 cleanup() {
   rm -rf "$tmpdir"
@@ -46,9 +46,11 @@ mkdir -p "$HOME"
 if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
   marketplace_file="$HOME/.agents/plugins/marketplace.json"
   issue_flow_plugin="$HOME/.codex/plugins/issue-flow/.codex-plugin/plugin.json"
+  bugfix_flow_skill="$HOME/.codex/plugins/issue-flow/skills/bugfix-flow/SKILL.md"
   config_file="$HOME/.codex/config.toml"
   if [ -f "$marketplace_file" ] \
     && [ -f "$issue_flow_plugin" ] \
+    && [ -f "$bugfix_flow_skill" ] \
     && [ -f "$config_file" ] \
     && grep -q '"name": "codex-personal-plugins"' "$marketplace_file" \
     && grep -q '"displayName": "Personal Plugins"' "$marketplace_file" \
@@ -67,7 +69,15 @@ else
   record_fail
 fi
 
-echo -n "  install script enables codex_hooks in user config without losing other settings ... "
+echo -n "  install script help mentions bugfix-flow bundle support ... "
+if grep -q 'bugfix-flow' "$INSTALL_SCRIPT" \
+  && HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
+  record_pass
+else
+  record_fail
+fi
+
+echo -n "  install script enables plugins without rewriting unrelated config ... "
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 HOME="$tmpdir/home"
@@ -77,7 +87,6 @@ model = "gpt-5"
 
 [features]
 other_feature = true
-codex_hooks = false
 
 [profiles.fast]
 model = "gpt-5-mini"
@@ -89,8 +98,7 @@ if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
     && grep -q '^model = "gpt-5"$' "$config_file" \
     && grep -q '^\[features\]$' "$config_file" \
     && grep -q '^other_feature = true$' "$config_file" \
-    && grep -q '^codex_hooks = true$' "$config_file" \
-    && ! grep -q '^codex_hooks = false$' "$config_file" \
+    && ! grep -q '^codex_hooks = ' "$config_file" \
     && grep -q '^\[plugins\."superpowers@openai-curated"\]$' "$config_file" \
     && grep -q '^\[plugins\."issue-flow@codex-personal-plugins"\]$' "$config_file" \
     && grep -q '^\[profiles.fast\]$' "$config_file"; then
@@ -102,7 +110,7 @@ else
   record_fail
 fi
 
-echo -n "  install script merges managed SessionStart hook into user hooks config ... "
+echo -n "  install script does not create or merge user hooks config ... "
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 HOME="$tmpdir/home"
@@ -137,13 +145,10 @@ EOF
 
 if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
   hooks_file="$HOME/.codex/hooks.json"
-  issue_flow_hook_count=$(grep -c 'hooks/run-hook.cmd\\" session-start' "$hooks_file" || true)
   if [ -f "$hooks_file" ] \
     && grep -Eq '"command"[[:space:]]*:[[:space:]]*"echo existing-session-hook"' "$hooks_file" \
     && grep -Eq '"command"[[:space:]]*:[[:space:]]*"echo stop-hook"' "$hooks_file" \
-    && grep -Eq '"matcher"[[:space:]]*:[[:space:]]*"startup\|resume"' "$hooks_file" \
-    && grep -q "$HOME/.codex/plugins/issue-flow/hooks/run-hook.cmd" "$hooks_file" \
-    && [ "$issue_flow_hook_count" -eq 1 ]; then
+    && ! grep -q 'run-hook.cmd' "$hooks_file"; then
     record_pass
   else
     record_fail
@@ -152,18 +157,13 @@ else
   record_fail
 fi
 
-echo -n "  install script keeps managed user hook idempotent across repeated installs ... "
+echo -n "  install script keeps plugin config idempotent across repeated installs ... "
 if HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1 \
   && HOME="$HOME" "$INSTALL_SCRIPT" --copy >/dev/null 2>&1; then
-  hooks_file="$HOME/.codex/hooks.json"
   config_file="$HOME/.codex/config.toml"
-  issue_flow_hook_count=$(grep -c 'hooks/run-hook.cmd\\" session-start' "$hooks_file" || true)
-  codex_hooks_count=$(grep -c '^codex_hooks = true$' "$config_file" || true)
   superpowers_plugin_count=$(grep -c '^\[plugins\."superpowers@openai-curated"\]$' "$config_file" || true)
   issue_flow_plugin_count=$(grep -c '^\[plugins\."issue-flow@codex-personal-plugins"\]$' "$config_file" || true)
-  if [ "$issue_flow_hook_count" -eq 1 ] \
-    && [ "$codex_hooks_count" -eq 1 ] \
-    && [ "$superpowers_plugin_count" -eq 1 ] \
+  if [ "$superpowers_plugin_count" -eq 1 ] \
     && [ "$issue_flow_plugin_count" -eq 1 ]; then
     record_pass
   else
