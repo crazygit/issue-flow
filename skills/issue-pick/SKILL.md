@@ -3,7 +3,7 @@ name: issue-pick
 description: >-
   接手已有 GitHub Issue：读取并解析 Issue 内容、创建隔离 worktree 和分支、
   初始化 .issue-flow 上下文。为后续设计和实现做准备。
-argument-hint: "<Issue 编号>（如 #123）"
+argument-hint: "[--auto] <Issue 编号>（如 #123）"
 disable-model-invocation: false
 allowed-tools:
   - Read
@@ -37,6 +37,7 @@ allowed-tools:
 1. 运行 `gh auth status`，失败则停止，提示 `gh auth login -h github.com`
 2. 运行 `git remote -v` 确认仓库有 GitHub remote
 3. 运行 `gh repo view --json nameWithOwner -q .nameWithOwner` 读取仓库标识
+4. 解析 `$ARGUMENTS`：包含 `--auto` 或以 `auto ` 开头时 `mode=auto`，否则 `mode=manual`
 
 任何一步失败则停止，不继续后续步骤。
 
@@ -73,7 +74,21 @@ allowed-tools:
 进入 worktree 根目录后：
 
 1. 使用 `Bash(mkdir *)` 创建 `.issue-flow/`
-2. 使用 `Write` 写入 `.issue-flow/issue.json`，内容为：
+2. 使用 `Write` 写入 `.issue-flow/mode`，内容为：
+
+```text
+manual|auto
+```
+
+3. 使用 `Write` 写入 `.issue-flow/state`，内容为：
+
+```text
+picked
+```
+
+初始 state 为 `picked`。
+
+4. 使用 `Write` 写入 `.issue-flow/issue.json`，内容为：
 
 ```json
 {
@@ -84,7 +99,8 @@ allowed-tools:
 }
 ```
 
-> `issue-pick` **不修改 `.issue-flow/state`**，状态由 `issue-flow` 编排器统一维护。
+> `issue-pick` 是唯一允许创建正式 `.issue-flow/state` 初始值的子 skill。后续状态更新仍由 `issue-flow` 编排器统一维护。
+> `issue-pick` 不删除源仓库的 pending 文件；pending 生命周期由 `issue-flow` 编排器统一维护。
 
 ### 6. 生成 kickoff 草稿
 
@@ -97,10 +113,11 @@ allowed-tools:
 完成时输出：
 
 - Issue 摘要（目标、验收标准、约束）
-- 分支名和 worktree 路径
+- 分支名和 worktree 根目录路径
 - kickoff 草稿内容
 - 是否建议先走 `/superpowers:brainstorming`
-- 提示："已初始化 `.issue-flow/issue.json`，可通过 `/issue-flow` 随时恢复编排流程"
+- pending 删除状态
+- 提示："已初始化 `.issue-flow/mode`、`.issue-flow/state` 和 `.issue-flow/issue.json`，可通过 `/issue-flow` 随时恢复编排流程"
 
 ## 规则
 

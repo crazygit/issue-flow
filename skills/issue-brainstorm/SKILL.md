@@ -25,11 +25,12 @@ allowed-tools:
 按以下优先级依次检查：
 
 1. **检查 `$ARGUMENTS`**：如果包含 `--auto` → **auto 模式**
-2. **检查 `.issue-flow/mode`**：如果存在且内容为 `auto` → **auto 模式**
-3. **默认** → **manual 模式**
+2. **检查 `.issue-flow/pending.json`**：如果存在且 `mode=auto` → **auto 模式**
+3. **检查 `.issue-flow/mode`**：如果存在且内容为 `auto` → **auto 模式**
+4. **默认** → **manual 模式**
 
 > 模式检测完成后，从 `$ARGUMENTS` 中移除 `--auto` 标记，剩余部分作为需求描述供后续步骤使用。
-> 当由 `issue-flow` 编排器调用时，模式通过 `$ARGUMENTS` 中的 `--auto` 标志传递（此时 `.issue-flow/` 尚未创建）。
+> 当由 `issue-flow` 编排器调用时，模式优先通过 `$ARGUMENTS` 中的 `--auto` 标志传递；若处于可恢复的 pre-worktree 阶段，可从 `.issue-flow/pending.json` 读取。
 > 当独立调用或处于持久化状态机阶段时，模式从 `.issue-flow/mode` 文件读取。
 
 ### 2. 需求澄清
@@ -42,6 +43,13 @@ allowed-tools:
 调用 `superpowers:brainstorming` 进行设计评审。
 
 输入：需求描述 + 任何补充上下文。
+
+调用时必须明确声明 Issue-Flow 的 spec 持久化偏好：
+- GitHub Issue 描述是最终 design spec 的存放位置
+- 不要写入 `docs/superpowers/specs/`
+- 不要提交 design spec 文档
+- 不要在 brainstorm 结束后进入 `writing-plans`，后续由 `issue-create` 创建 Issue 后再进入状态机
+
 输出：一份结构化的 design spec，至少包含：
 - 目标（一句话说明交付结果）
 - 背景（为什么做）
@@ -106,4 +114,6 @@ allowed-tools:
 - 不编造内容，严格从用户输入和对话上下文中推导
 - 验收标准必须可验证
 - 范围必须明确，避免无限蔓延
+- Issue-Flow 不使用 `docs/superpowers/specs/` 作为 design spec 产物目录
+- 不要创建或提交任何 design spec 文档；最终 design spec 必须输出给 `issue-create` 写入 GitHub Issue 描述
 - 如果用户在设计评审过程中提出重大修改，更新 design spec 后重新展示

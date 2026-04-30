@@ -67,8 +67,8 @@ declare -A TRANSITIONS
 
 # issue-flow transitions
 TRANSITIONS[issue-brainstorm]="none"
-TRANSITIONS[issue-create]="brainstorm none"
-TRANSITIONS[issue-pick]="brainstorm none"
+TRANSITIONS[issue-create]="none"
+TRANSITIONS[issue-pick]="none"
 TRANSITIONS[issue-plan]="researching"
 TRANSITIONS[issue-research]="picked"
 TRANSITIONS[issue-implement]="planned reviewing"

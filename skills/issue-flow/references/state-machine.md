@@ -1,23 +1,23 @@
 # Issue-Flow 状态机
 
-## 预阶段（`.issue-flow/` 尚未创建）
+## 预阶段（pre-worktree pending）
 
 ```text
 brainstorm -> issue-create -> [进入持久化状态机]
 ```
 
-- `brainstorm`：需求讨论与 design spec 生成，发生在 `.issue-flow/` 创建之前
-- `issue-create`：桥接动作，将 design spec 变为 GitHub Issue 编号，不产生状态变更
-- 这两个阶段是会话级的，不可持久化、不可恢复
+- `brainstorm`：需求讨论与 design spec 生成，发生在目标 worktree 创建之前
+- `issue-create`：桥接动作，将 design spec 变为 GitHub Issue 编号
+- 这两个阶段使用源仓库根目录的 `.issue-flow/pending.json` 做短期恢复；`pending.json` 不是正式状态机 state
 
 ### 预阶段模式传递
 
-由于预阶段运行时 `.issue-flow/mode` 尚不存在，`issue-flow` 编排器通过 Skill args 将模式传递给预阶段子 skill：
+由于预阶段运行时正式 `.issue-flow/mode` 尚不存在，`issue-flow` 编排器通过 Skill args 将模式传递给预阶段子 skill：
 
 - auto 模式：编排器调用时传入 `--auto` 标志 + 需求描述
 - manual 模式：编排器调用时仅传入需求描述
 
-子 skill 按优先级检测模式：`$ARGUMENTS` 中的 `--auto` → `.issue-flow/mode` → 默认 manual。
+子 skill 按优先级检测模式：`$ARGUMENTS` 中的 `--auto` → `.issue-flow/pending.json` → `.issue-flow/mode` → 默认 manual。
 
 ## 持久化状态机（`.issue-flow/` 在 `issue-pick` 时创建）
 
@@ -36,8 +36,8 @@ picked
 
 - `implementing -> issue-verify -> committing`
 - `implementing -> issue-verify(失败) -> implementing`
-- `reviewing -> issue-verify -> reviewing`
-- `reviewing -> issue-implement -> implementing`
+- `reviewing -> issue-verify -> reviewing`（无阻塞 PR feedback / checks 时）
+- `reviewing -> issue-implement -> implementing`（存在需要改代码的 PR feedback / failed checks 时）
 
 设计意图：
 

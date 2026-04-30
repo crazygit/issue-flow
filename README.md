@@ -18,12 +18,13 @@ Issue-Flow ships two workflow state machines:
 
 ### `issue-flow`
 
-The issue-driven workflow has two parts: a pre-phase that produces a GitHub Issue number, and a persistent state machine that tracks delivery from that point on.
+The issue-driven workflow has two parts: a pre-worktree phase that produces a GitHub Issue number, and a persistent state machine that tracks delivery from that point on.
 
-**Pre-phase** (session-scoped, not persistable):
+**Pre-worktree phase** (short-lived pending state in the source repo):
 
 - `issue-brainstorm` turns a rough request into a design direction
 - `issue-create` turns the design spec into a GitHub Issue number
+- `.issue-flow/pending.json` can recover this short phase before a target worktree exists
 
 **Persistent state machine** (`.issue-flow/` created by `issue-pick`):
 
@@ -46,6 +47,8 @@ The top-level `issue-flow` skill is the orchestrator. It reads the current sessi
 ### `bugfix-flow`
 
 The bugfix workflow is intentionally narrower. It is for cases where you already know there is a bug and want the agent to focus on reproducing, fixing, and verifying it before any commit or PR step.
+
+Bugfix work usually goes directly to `bugfix-pick`. If it must pause before a worktree exists, `.bugfix-flow/pending.json` can hold that short-lived pending state in the source repo.
 
 **Persistent state machine** (`.bugfix-flow/` created by `bugfix-pick`):
 

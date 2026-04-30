@@ -18,6 +18,7 @@ allowed-tools:
   - Bash(git show *)
   - Bash(git remote -v)
   - Bash(git rev-parse *)
+  - Bash(git push *)
   - Bash(gh auth status *)
   - Bash(gh pr create *)
   - Bash(gh pr list --head *)
@@ -33,7 +34,7 @@ allowed-tools:
 
 - 当前不在 `main`/`master` 等主分支
 - 当前变更已经过验证，适合进入评审
-- 远端分支如需先推送，应在进入本 skill 前完成
+- 本 skill 负责在创建 PR 前确保当前分支已推送到远端
 
 ## 执行步骤
 
@@ -70,7 +71,16 @@ allowed-tools:
 - 运行 `gh pr list --head <branch>`
 - 如果当前分支已经存在 open PR，停止并返回已有 PR 信息，避免重复创建
 
-### 5. 起草 PR 内容
+### 5. 确保远端分支
+
+确保当前分支已推送到远端：
+
+- 若 `origin/<branch>` 不存在，manual 模式先展示将执行的 push 命令并等待确认，然后运行 `git push -u origin <branch>`
+- 若 `origin/<branch>` 不存在，auto 模式直接 push 当前分支：`git push -u origin <branch>`
+- 若远端分支已存在，运行 `git push` 更新当前分支
+- push 失败则停止，不创建 PR，输出失败原因和下一步处理建议
+
+### 6. 起草 PR 内容
 
 1. 根据 `references/templates.md` 中的 PR 模板起草内容，优先使用 `Write` 写入 `mktemp` 创建的临时文件，避免依赖 shell 重定向
 2. PR 标题必须使用中文，概括当前分支的最终交付内容，不使用英文 Conventional Commits 格式
@@ -80,7 +90,7 @@ allowed-tools:
 6. 创建时默认将 PR 指派给当前登录用户（`@me`）
 7. 变更说明必须严格来源于 `git diff`、提交记录和 Issue 内容，不编造
 
-### 6. 创建 PR
+### 7. 创建 PR
 
 #### Manual 模式
 
@@ -116,7 +126,7 @@ rm -f "$TMPFILE"
 - 创建 PR 时默认使用 `--assignee "@me"` 将其分配给自己
 - auto 模式下默认创建 draft PR，避免过早进入正式评审
 - 找到 Issue 时，正文应关联 Issue（`Closes #N`）
-- 不自动 `git push`
+- 创建 PR 前必须确保当前分支已推送到远端
 - manual 模式下直接通过 API 创建 PR（⛔ 禁止使用 `--web`），由用户确认后提交
 - 未找到关联 Issue 时提示用户，不编造关联关系
 - 不要编造变更内容 — 严格从 `git diff` 和 Issue 中提取

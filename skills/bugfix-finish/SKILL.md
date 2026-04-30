@@ -31,7 +31,17 @@ allowed-tools:
 - `auto` → **auto 模式**
 - 其他/不存在 → **manual 模式**
 
-### 3. 分支收尾
+同时读取并暂存最终报告需要的 bug 摘要、当前分支名、worktree 路径和未提交变更摘要。
+
+### 3. 清理 `.bugfix-flow`
+
+在任何可能移除 worktree 的操作之前，删除当前 worktree 根目录下的 `.bugfix-flow/`：
+
+```bash
+rm -rf .bugfix-flow
+```
+
+### 4. 分支收尾
 
 #### Manual 模式
 
@@ -50,14 +60,6 @@ bugfix-flow 默认不要求在此阶段创建 PR。
 2. 清理 worktree
 3. 不自动 merge
 
-### 4. 清理 `.bugfix-flow`
-
-无论 manual 还是 auto，在收尾完成后删除 `.bugfix-flow/` 目录：
-
-```bash
-rm -rf .bugfix-flow
-```
-
 ### 5. 输出
 
 输出最终报告：
@@ -71,5 +73,5 @@ rm -rf .bugfix-flow
 
 - 不自动 merge PR
 - 不自动删除远端 branch
-- `.bugfix-flow/` 在 `finished` 后必须清理
+- `.bugfix-flow/` 在 `finished` 后必须清理，并且必须先于 worktree 移除执行
 - 删除时仅清理当前 worktree 根目录下的 `.bugfix-flow/`

@@ -3,7 +3,7 @@ name: bugfix-pick
 description: >-
   接手一个 bug 修复任务：从 GitHub Issue 或自由文本构建修复上下文，创建隔离 worktree 和分支，
   初始化 .bugfix-flow/。为后续修改和验证做准备。
-argument-hint: "<bug 描述 | #Issue编号>"
+argument-hint: "[--auto] <bug 描述 | #Issue编号>"
 disable-model-invocation: false
 allowed-tools:
   - Read
@@ -34,8 +34,11 @@ allowed-tools:
 1. 运行 `git rev-parse --is-inside-work-tree`
 2. 运行 `git remote -v`
 3. 如果参数是 `#N`，再运行 `gh auth status` 与 `gh repo view --json nameWithOwner -q .nameWithOwner`
+4. 解析 `$ARGUMENTS`：包含 `--auto` 或以 `auto ` 开头时 `mode=auto`，否则 `mode=manual`
 
 任何一步失败则停止，不继续后续步骤。
+
+> 输入信息已由 `bugfix-flow` 预检查；`bugfix-pick` 仍需验证上下文是否足够创建 worktree，但不负责 pending 生命周期。
 
 ### 2. 解析输入
 
@@ -77,7 +80,21 @@ allowed-tools:
 进入 worktree 根目录后：
 
 1. 使用 `Bash(mkdir *)` 创建 `.bugfix-flow/`
-2. 使用 `Write` 写入 `.bugfix-flow/context.json`
+2. 使用 `Write` 写入 `.bugfix-flow/mode`，内容为：
+
+```text
+manual|auto
+```
+
+3. 使用 `Write` 写入 `.bugfix-flow/state`，内容为：
+
+```text
+picked
+```
+
+初始 state 为 `picked`。
+
+4. 使用 `Write` 写入 `.bugfix-flow/context.json`
 
 `context.json` 最少包含：
 
@@ -102,7 +119,8 @@ allowed-tools:
 }
 ```
 
-> `bugfix-pick` 不修改 `.bugfix-flow/state`，状态由 `bugfix-flow` 编排器统一维护。
+> `bugfix-pick` 是唯一允许创建正式 `.bugfix-flow/state` 初始值的子 skill。后续状态更新仍由 `bugfix-flow` 编排器统一维护。
+> `bugfix-pick` 不删除源仓库的 pending 文件；pending 生命周期由 `bugfix-flow` 编排器统一维护。
 
 ### 5. 输出
 
@@ -111,8 +129,9 @@ allowed-tools:
 - bug 摘要
 - 复现与预期行为
 - 验证目标列表
-- 分支名和 worktree 路径
-- 提示："已初始化 `.bugfix-flow/context.json`，可通过 `/bugfix-flow` 继续进入修复阶段"
+- 分支名和 worktree 根目录路径
+- pending 删除状态
+- 提示："已初始化 `.bugfix-flow/mode`、`.bugfix-flow/state` 和 `.bugfix-flow/context.json`，可通过 `/bugfix-flow` 继续进入修复阶段"
 
 ## 规则
 

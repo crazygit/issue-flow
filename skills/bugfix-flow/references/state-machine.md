@@ -1,5 +1,11 @@
 # Bugfix-Flow 状态机
 
+## 预阶段（可选 pending）
+
+Bugfix-Flow 通常直接从输入进入 `bugfix-pick`。只有在 pick 前需要澄清或暂停时，才在源仓库根目录写入 `.bugfix-flow/pending.json`。
+
+`pending.json` 不是正式状态机 state；正式状态机仍从目标 worktree 的 `picked` 开始。
+
 ## 持久化状态机（`.bugfix-flow/` 在 `bugfix-pick` 时创建）
 
 ```text

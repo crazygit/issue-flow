@@ -2,7 +2,7 @@
 name: issue-create
 description: >-
   创建 GitHub Issue。从对话上下文提取需求信息，按类型选择模板。
-  支持 manual 模式（--web 浏览器审核）和 auto 模式（直接创建）。
+  支持 manual 模式（API 创建后人工审核）和 auto 模式（直接创建）。
 argument-hint: "[简要描述（可选）]"
 disable-model-invocation: false
 allowed-tools:
@@ -13,7 +13,6 @@ allowed-tools:
   - AskUserQuestion
   - Bash(git remote -v)
   - Bash(git rev-parse --is-inside-work-tree)
-  - Bash(gh issue create --web *)
   - Bash(gh issue create *)
   - Bash(mktemp *)
   - Bash(rm -f "$TMPFILE")
@@ -32,6 +31,7 @@ allowed-tools:
 - 验收标准（acceptance criteria）
 - 影响范围（scope）
 - 如有 `$ARGUMENTS`，将其作为额外补充
+- 如果上下文包含 `issue-brainstorm` 输出的 `## Design Spec`，将它作为 Issue 正文的主内容来源
 
 ### 2. 检测目标仓库
 
@@ -42,11 +42,12 @@ allowed-tools:
 按以下优先级依次检查：
 
 1. **检查 `$ARGUMENTS`**：如果包含 `--auto` → **auto 模式**
-2. **检查 `.issue-flow/mode`**：如果存在且内容为 `auto` → **auto 模式**
-3. **默认** → **manual 模式**
+2. **检查 `.issue-flow/pending.json`**：如果存在且 `mode=auto` → **auto 模式**
+3. **检查 `.issue-flow/mode`**：如果存在且内容为 `auto` → **auto 模式**
+4. **默认** → **manual 模式**
 
 > 模式检测完成后，从 `$ARGUMENTS` 中移除 `--auto` 标记，剩余部分作为补充说明供后续步骤使用。
-> 当由 `issue-flow` 编排器调用时，模式通过 `$ARGUMENTS` 中的 `--auto` 标志传递（此时 `.issue-flow/` 尚未创建）。
+> 当由 `issue-flow` 编排器调用时，模式优先通过 `$ARGUMENTS` 中的 `--auto` 标志传递；若处于可恢复的 pre-worktree 阶段，可从 `.issue-flow/pending.json` 读取。
 > 当独立调用或处于持久化状态机阶段时，模式从 `.issue-flow/mode` 文件读取。
 
 ### 4. 确认需求（manual 模式）
@@ -68,6 +69,8 @@ allowed-tools:
 - 文档更新 → `documentation`
 - 工具/CI/构建 → `chore`
 - 性能优化 → `performance`
+
+如果存在来自 `issue-brainstorm` 的 design spec，Issue 正文必须完整保留 design spec 的目标、背景、验收标准、范围、技术约束、风险与依赖；不要只写摘要，也不要引用本地 `docs/superpowers/specs/` 文件作为替代。
 
 ### 6. 创建 Issue
 
@@ -111,6 +114,7 @@ rm -f "$TMPFILE"
 - 创建 Issue 时默认使用 `--assignee "@me"` 将其分配给自己
 - 不要编造内容 — 严格从对话上下文和用户输入中推导
 - 对话中的要点列表自动转换为验收标准
+- 完整保留 design spec 到 GitHub Issue 描述中，不依赖本地 spec 文档
 - 概述保持简洁（1-3 句）
 - 背景解释"为什么"，不重复"做什么"
 - **⛔ 禁止使用 `--web`** — body 较长时会触发 URL 长度限制错误，始终通过 API 直接创建

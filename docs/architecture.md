@@ -24,7 +24,7 @@ Everything else should remain delegated to focused skills or to `superpowers`.
 
 ### Orchestrator skill
 
-`skills/issue-flow/SKILL.md` is the entry point. It reads session state from `.issue-flow/`, determines the current phase, and hands control to the next workflow skill.
+`skills/issue-flow/SKILL.md` is the entry point. It reads formal session state from `.issue-flow/` in the target worktree, or pending pre-worktree state from the source repository when a worktree does not exist yet. It then determines the current phase and hands control to the next workflow skill.
 
 The orchestrator should stay small. It owns coordination, not execution details.
 
@@ -57,11 +57,13 @@ The `skills/issue-*` files implement each phase of the lifecycle:
 
 ## State Model
 
-Issue-Flow has two phases: a **pre-phase** and a **persistent state machine**.
+Issue-Flow has two phases: a **pre-worktree pending phase** and a **persistent state machine**.
 
-The pre-phase (`issue-brainstorm` + `issue-create`) runs before `.issue-flow/` exists. These stages are session-scoped and cannot be persisted or recovered. Mode is passed via `$ARGUMENTS --auto` since the mode file does not exist yet.
+The pre-worktree phase (`issue-brainstorm` + `issue-create`, and the setup immediately before `issue-pick`) runs before the target worktree exists. During this phase, the source repository root may contain `.issue-flow/pending.json`. That file is a short-lived handoff record, not a formal state-machine state. It lets the orchestrator recover from interruptions before the target worktree has been created. The same pattern is available to `bugfix-flow` as `.bugfix-flow/pending.json`, but only when bugfix pick needs to pause for clarification.
 
-The persistent state machine starts at `picked`, when `issue-pick` creates the `.issue-flow/` directory, worktree, and branch. From this point on, session state is persisted in `.issue-flow/` at the worktree root. Typical files include:
+Pending state is intentionally simple: one pending flow per repo root. If a new request finds an existing pending file in the same repo root, the orchestrator asks the user to recover, overwrite, or cancel instead of creating a multi-session registry.
+
+The persistent state machine starts at `picked`, when `issue-pick` creates the worktree, branch, and formal `.issue-flow/` directory. From this point on, session state is persisted in `.issue-flow/` at the worktree root. Typical files include:
 
 - `state` - current workflow phase
 - `mode` - manual or auto
@@ -70,7 +72,7 @@ The persistent state machine starts at `picked`, when `issue-pick` creates the `
 - `plan-path` - current implementation plan path
 - `verify-report.md` - verification output
 
-The source of truth for valid states and transitions is [../skills/issue-flow/references/state-schema.md](../skills/issue-flow/references/state-schema.md).
+The source of truth for valid states and transitions is [../skills/issue-flow/references/state-schema.md](../skills/issue-flow/references/state-schema.md). The bugfix equivalent is [../skills/bugfix-flow/references/state-schema.md](../skills/bugfix-flow/references/state-schema.md).
 
 ## Why Issue-Flow Depends On Superpowers
 

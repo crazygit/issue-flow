@@ -7,6 +7,8 @@ disable-model-invocation: false
 allowed-tools:
   - Read
   - Write
+  - Edit
+  - MultiEdit
   - Glob
   - Grep
   - Bash(cat *)
@@ -46,6 +48,7 @@ allowed-tools:
 - 优先做最小可行修复，不扩大范围
 - 如需要补测试，测试内容应直接覆盖 `verification_targets`
 - 若当前 `state=ready` 且用户重新进入本阶段，视为处理验证中暴露的新缺口
+- 优先使用 `Edit` / `MultiEdit` 做局部修改；只有创建新文件或整体生成文件时才使用 `Write`
 
 ### 4. 输出
 
