@@ -1,6 +1,6 @@
 {
   "name": "issue-flow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Issue-driven development orchestrator packaged as a reusable Codex plugin bundle.",
   "author": {
     "name": "Crazygit",

@@ -1,5 +1,19 @@
 # Release Notes
 
+## v1.1.0
+
+State lifecycle update for issue and bugfix workflows.
+
+### Features
+- Added pre-worktree pending state with `.issue-flow/pending.json` for issue-flow.
+- Added optional `.bugfix-flow/pending.json` for bugfix-flow clarification before worktree creation.
+- Made pick skills create the initial formal `state=picked` and `mode` files in target worktrees.
+- Clarified pending ownership, cleanup, and mode-detection precedence across workflow docs.
+
+### Tests
+- Added coverage for pending files not being treated as formal state.
+- Added skill-loading checks for pending-state contracts and pick-owned initial state.
+
 ## v1.0.0
 
 Initial release.
